@@ -16,11 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Upload Pages artifact
-        # Use v2 which avoids the deprecated actions/upload-artifact v3 dependency
-        uses: actions/upload-pages-artifact@v2
+      - name: Deploy to GitHub Pages (push to gh-pages)
+        # Use a stable deploy-to-gh-pages action that doesn't rely on deprecated upload-artifact
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
