@@ -112,8 +112,17 @@ function resetResult(){
   $('nationId').textContent = '—';
   $('rank').textContent = '—';
   $('category').textContent = '—';
-  $('category2').textContent = '—';
-  $('category2').classList.add('hidden');
+  const cat2 = $('category2');
+  if(cat2){
+    cat2.textContent = '—';
+    // keep category2 visible only if the second slot container is visible
+    const t2 = $('type2');
+    if(t2 && !t2.classList.contains('hidden')){
+      cat2.classList.remove('hidden');
+    }else{
+      cat2.classList.add('hidden');
+    }
+  }
   const img = $('flagImg');
   img.src = 'assets/flags/placeholder.svg';
   const divider = $('typeDivider');
@@ -174,7 +183,7 @@ function setup(){
   });
 
   // initial state
-  // default: deux joueurs
+  // initial state: default = deux joueurs, but porte-avions disabled
   $('twoPlayer').classList.add('bg-blue-600');
   $('type2').classList.remove('hidden');
   // show player labels initially (two players)
@@ -182,6 +191,8 @@ function setup(){
   $('player2Label').classList.remove('hidden');
   // ensure divider visible initially
   const divider = $('typeDivider'); if(divider) divider.classList.remove('hidden');
+  // set carrier button default to disabled state
+  const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
 }
 
 window.addEventListener('load', setup);

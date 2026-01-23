@@ -1,3 +1,15 @@
 [
-  {"id":"placeholder","name":"Placeholder Nation","flag":"assets/flags/placeholder.svg","carriers":false}
+  {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.svg","carriers":true},
+  {"id":"japan","name":"Japon","flag":"assets/flags/japan.svg","carriers":true},
+  {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.svg","carriers":false},
+  {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.svg","carriers":false},
+  {"id":"uk","name":"U.K.","flag":"assets/flags/uk.svg","carriers":true},
+  {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.svg","carriers":true},
+  {"id":"france","name":"France","flag":"assets/flags/france.svg","carriers":false},
+  {"id":"italy","name":"Italie","flag":"assets/flags/italy.svg","carriers":false},
+  {"id":"spain","name":"Espagne","flag":"assets/flags/spain.svg","carriers":false},
+  {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.svg","carriers":false},
+  {"id":"europe","name":"Europe","flag":"assets/flags/europe.svg","carriers":false},
+  {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.svg","carriers":false},
+  {"id":"pan-asie","name":"Pan-Asie","flag":"assets/flags/pan-asie.svg","carriers":false}
 ]
