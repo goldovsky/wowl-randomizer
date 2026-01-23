@@ -7,13 +7,19 @@ function $(id){ return document.getElementById(id); }
 
 async function loadData(){
   try{
+    // try fetch first (works when served over http)
     const res = await fetch(DATA_PATH);
     nations = await res.json();
   }catch(e){
-    // fallback: minimal placeholder
+    // If fetch failed (eg. file://, CORS), attempt to read an embedded fallback
+    if(window && window.__NATIONS__ && Array.isArray(window.__NATIONS__)){
+      nations = window.__NATIONS__;
+      return;
+    }
+    // final fallback: minimal placeholder
     nations = [
-      { id:'usa', name:'USA', flag:'assets/flags/usa.svg', carriers:true },
-      { id:'uk', name:'UK', flag:'assets/flags/uk.svg', carriers:false },
+      { id:'usa', name:'USA', flag:'assets/flags/usa.png', carriers:true },
+      { id:'uk', name:'UK', flag:'assets/flags/uk.png', carriers:false },
     ];
   }
 }
@@ -107,6 +113,37 @@ function applyResult({nation, rank, category}){
   if(nation.flag) img.src = nation.flag;
 }
 
+// Ensure flag image falls back to placeholder if the file is missing or fails to load
+function setupFlagImageHandlers(){
+  const img = $('flagImg');
+  if(!img) return;
+  img.onerror = function(){
+    // if we haven't tried the alternate extension yet, attempt it (png <-> svg)
+    try{
+      const attempted = img.dataset.attemptedFallback;
+      if(!attempted){
+        img.dataset.attemptedFallback = '1';
+        const src = img.src || '';
+        if(src.endsWith('.png')){
+          img.src = src.replace(/\.png$/, '.svg');
+          console.warn('Flag image missing, trying .svg alternative for', src);
+          return;
+        }else if(src.endsWith('.svg')){
+          img.src = src.replace(/\.svg$/, '.png');
+          console.warn('Flag image missing, trying .png alternative for', src);
+          return;
+        }
+      }
+    }catch(e){ /* ignore and fallback */ }
+    console.warn('Flag image failed to load, falling back to placeholder:', img.src);
+    img.src = 'assets/flags/placeholder.svg';
+  };
+  img.onload = function(){
+    // keep subtle background look but ensure image is visible
+    img.classList.add('object-cover');
+  };
+}
+
 function resetResult(){
   $('nationName').textContent = '—';
   $('nationId').textContent = '—';
@@ -191,6 +228,8 @@ function setup(){
   setPlayersMode(2);
   // set carrier button default to disabled state
   const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
+  // setup flag image fallback handlers
+  setupFlagImageHandlers();
 }
 
 window.addEventListener('load', setup);
