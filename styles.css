@@ -4,6 +4,9 @@
 body{background:var(--bg);}
 .btn-toggle{min-width:40px}
 
+/* small inline icons for player toggle buttons */
+.inline-icon{ height:1.1rem; width:1.1rem; filter: invert(1) brightness(2); display:inline-block }
+
 .hidden{display:none}
 
 /* center small header paragraph */
