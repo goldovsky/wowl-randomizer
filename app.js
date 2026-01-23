@@ -141,34 +141,39 @@ async function onRandom(){
 
 function setup(){
   $('randomBtn').addEventListener('click', onRandom);
-  $('onePlayer').addEventListener('click', ()=>{
-    $('onePlayer').classList.add('bg-blue-600');
-    $('twoPlayer').classList.remove('bg-blue-600');
-    // hide second type
-    $('type2').classList.add('hidden');
-    // hide player labels when single player
-    $('player1Label').classList.add('hidden');
-    $('player2Label').classList.add('hidden');
-    // reset result to initial state
-    resetResult();
-    // ensure divider is hidden when single player
+  function setPlayersMode(players){
+    const one = $('onePlayer');
+    const two = $('twoPlayer');
+    const type2 = $('type2');
     const divider = $('typeDivider');
-    if(divider) divider.classList.add('hidden');
-  });
-  $('twoPlayer').addEventListener('click', ()=>{
-    $('twoPlayer').classList.add('bg-blue-600');
-    $('onePlayer').classList.remove('bg-blue-600');
-    // show second type
-    $('type2').classList.remove('hidden');
-    // show player labels when two players
-    $('player1Label').classList.remove('hidden');
-    $('player2Label').classList.remove('hidden');
-    // reset result to initial state
+    // normalize classes: remove both color classes then add desired
+    if(one){ one.classList.remove('bg-blue-600','bg-gray-700'); }
+    if(two){ two.classList.remove('bg-blue-600','bg-gray-700'); }
+    if(players===1){
+      if(one) one.classList.add('bg-blue-600');
+      if(two) two.classList.add('bg-gray-700');
+      // hide second type
+      if(type2) type2.classList.add('hidden');
+      // hide labels
+      const p1 = $('player1Label'), p2 = $('player2Label'); if(p1) p1.classList.add('hidden'); if(p2) p2.classList.add('hidden');
+      // hide divider
+      if(divider) divider.classList.add('hidden');
+    }else{
+      if(two) two.classList.add('bg-blue-600');
+      if(one) one.classList.add('bg-gray-700');
+      // show second type
+      if(type2) type2.classList.remove('hidden');
+      // show labels
+      const p1 = $('player1Label'), p2 = $('player2Label'); if(p1) p1.classList.remove('hidden'); if(p2) p2.classList.remove('hidden');
+      // show divider
+      if(divider) divider.classList.remove('hidden');
+    }
+    // reset result whenever mode changes
     resetResult();
-    // ensure divider is visible when two players
-    const divider = $('typeDivider');
-    if(divider) divider.classList.remove('hidden');
-  });
+  }
+
+  $('onePlayer').addEventListener('click', ()=> setPlayersMode(1));
+  $('twoPlayer').addEventListener('click', ()=> setPlayersMode(2));
 
   // carrier toggle behaviour
   $('allowCarrier').addEventListener('click', ()=>{
@@ -182,15 +187,8 @@ function setup(){
     resetResult();
   });
 
-  // initial state
-  // initial state: default = deux joueurs, but porte-avions disabled
-  $('twoPlayer').classList.add('bg-blue-600');
-  $('type2').classList.remove('hidden');
-  // show player labels initially (two players)
-  $('player1Label').classList.remove('hidden');
-  $('player2Label').classList.remove('hidden');
-  // ensure divider visible initially
-  const divider = $('typeDivider'); if(divider) divider.classList.remove('hidden');
+  // initial state: set players mode to 2 (keeps classes consistent)
+  setPlayersMode(2);
   // set carrier button default to disabled state
   const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
 }
