@@ -14,6 +14,9 @@ body{background:var(--bg);}
 /* make sure flag image covers area and doesn't stretch oddly */
 #flagImg{ object-fit:cover; height:3rem; width:4rem; }
 
+/* site logo sizing */
+#siteLogo{ height:3rem; width:auto; object-fit:contain }
+
 /* subtle fade for divider and type columns */
 #typeDivider{ transition:opacity 160ms ease; }
 #type2{ transition:opacity 160ms ease; }
