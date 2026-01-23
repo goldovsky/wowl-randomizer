@@ -15,7 +15,10 @@ body{background:var(--bg);}
 #flagImg{ object-fit:cover; height:3rem; width:4rem; }
 
 /* site logo sizing */
-#siteLogo{ height:3rem; width:auto; object-fit:contain }
+#siteLogo{ height:4rem; width:auto; object-fit:contain }
+@media (max-width:640px){
+  #siteLogo{ height:3rem }
+}
 
 /* subtle fade for divider and type columns */
 #typeDivider{ transition:opacity 160ms ease; }
