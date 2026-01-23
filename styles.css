@@ -15,9 +15,9 @@ body{background:var(--bg);}
 #flagImg{ object-fit:cover; height:3rem; width:4rem; }
 
 /* site logo sizing — larger on desktop, slightly smaller on mobile */
-#siteLogo{ height:6rem; width:auto; object-fit:contain }
+#siteLogo{ height:8rem; width:auto; object-fit:contain; max-width:90% }
 @media (max-width:640px){
-  #siteLogo{ height:4rem }
+  #siteLogo{ height:6rem }
 }
 
 /* subtle fade for divider and type columns */
