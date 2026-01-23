@@ -1,22 +1,195 @@
 // Minimal logic for WoWSL Randomizer
 const DATA_PATH = 'data/nations.json';
 
+const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByRank: {
+    "1": ["Destroyer","Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_japan = {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+  
+const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_germany = {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+
+const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+const nation_italy = {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+const nation_spain = {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false,
+  categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Cruiser"],
+    "3": ["Cruiser"],
+    "4": ["Cruiser"],
+    "5": ["Cruiser"],
+    "6": ["Cruiser"],
+    "7": ["Cruiser"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }
+};
+
+const nation_netherlands = {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Cruiser"],
+    "3": ["Cruiser"],
+    "4": ["Cruiser"],
+    "5": ["Cruiser"],
+    "6": ["Cruiser"],
+    "7": ["Cruiser"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByRank: {
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": ["Battleship"],
+    "5": ["Destroyer"],
+    "6": [],
+    "7": ["Battleship"],
+    "8": [],
+    "*": []
+  }};
+
+const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByRank: {
+    "1": [],
+    "2": ["Destroyer"],
+    "3": [],
+    "4": [],
+    "5": ["Cruiser"],
+    "6": ["Battleship"],
+    "7": ["Destroyer"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser"],
+    "4": ["Destroyer","Cruiser"],
+    "5": ["Destroyer","Cruiser"],
+    "6": ["Destroyer","Cruiser"],
+    "7": ["Destroyer","Cruiser"],
+    "8": ["Destroyer","Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,
+  categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer"],
+    "3": ["Destroyer"],
+    "4": ["Destroyer","Battleship"],
+    "5": ["Destroyer"],
+    "6": ["Destroyer","Battleship"],
+    "7": ["Destroyer","Cruiser"],
+    "8": ["Destroyer","Battleship"],
+    "*": ["Destroyer"]
+  }
+};
+
 // Embedded nations data — kept directly in app.js so the page works when opened
 // via file:// without CORS issues.
+// Nations list. Optional field `categoryByRank` lets you specify which ship
+// categories are available for a given rank for that nation. Example:
+//   categoryByRank: {
+//     "1": "Destroyer",
+//     "5": ["Cruiser","Battleship"],   // for rank 5 offer either Cruiser or Battleship
+//     "8": ["Battleship","Battleship"], // for rank 8 prefer Battleship (weighting via duplicates)
+//     "*": "Destroyer"                  // mapping for legendary rank
+//   }
+// The values may be a string (single category), or an array (used as a choice pool).
+// When `players===2` and the mapping resolves to two explicit values (array length 2),
+// they are used as the two player categories (subject to carrier rules). Otherwise the
+// array is treated as a pool to pick from.
 const NATIONS = [
-  {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true},
-  {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true},
-  {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false},
-  {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false},
-  {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true},
-  {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true},
-  {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false},
-  {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false},
-  {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false},
-  {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false},
-  {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false},
-  {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false},
-  {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false}
+  nation_usa,
+  nation_japan,
+  nation_ussr,
+  nation_germany,
+  nation_uk,
+  nation_commonwealth,
+  nation_france,
+  nation_italy,
+  nation_spain,
+  nation_netherlands,
+  nation_europe,
+  nation_pan_america,
+  nation_pan_asia,
 ];
 
 let nations = [];
@@ -67,10 +240,88 @@ function translateCategory(cat){
   return map[cat] || cat;
 }
 
+// map localized labels back to English filenames used in assets/categories
+function assetCategoryName(displayed){
+  const rev = {
+    'Destroyer': 'Destroyer',
+    'Croiseur': 'Cruiser',
+    'Cuirassé': 'Battleship',
+    'Porte-avions': 'Aircraft Carrier'
+  };
+  return rev[displayed] || displayed;
+}
+
 function suggestCategory(nation, allowCarrier, players){
   const base = ['Destroyer','Cruiser','Battleship'];
   const categories = [...base];
   if(allowCarrier && nation.carriers) categories.push('Aircraft Carrier');
+
+  // If the nation defines explicit categories per rank, use that mapping.
+  // The mapping keys are strings: '1'..'8' or '*'. Mapping values may be:
+  //  - a string (single category)
+  //  - an array: either [cat1, cat2] to explicitly assign both players,
+  //    or an array used as a pool of choices.
+  function applyMappingForRank(rank){
+    if(!nation || !nation.categoryByRank) return null;
+    const key = String(rank);
+    const m = nation.categoryByRank[key];
+    if(m === undefined) return null;
+    // helper to check carrier availability
+    const allowed = (cat) => !(cat === 'Aircraft Carrier' && (!allowCarrier || !nation.carriers));
+
+    if(typeof m === 'string'){
+      if(allowed(m)) return m;
+      return null; // mapping targets carrier but carriers not allowed => fall back
+    }
+    if(Array.isArray(m)){
+      // explicit two-slot assignment when exactly two strings are provided
+      if(players === 2 && m.length === 2 && typeof m[0] === 'string' && typeof m[1] === 'string'){
+        let a = m[0]; let b = m[1];
+        // enforce carrier rules: if one of them is an Aircraft Carrier but carriers not allowed, replace it later
+        if(!allowed(a)) a = null;
+        if(!allowed(b)) b = null;
+        // if both ended up as carriers and carriers are allowed, enforce max 1 carrier like original logic
+        if(a === 'Aircraft Carrier' && b === 'Aircraft Carrier'){
+          // prefer keeping first as carrier, replace second with fallback from categories
+          const poolNoCarrier = categories.filter(c => c !== 'Aircraft Carrier');
+          b = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories);
+        }
+        // if any slot became null because carriers not allowed, fill from pool
+        if(a == null) a = pick(categories.filter(allowed));
+        if(b == null) b = pick(categories.filter(allowed));
+        return [a, b];
+      }
+      // otherwise treat array as a pool to pick from
+      const pool = m.slice().filter(x => typeof x === 'string' && allowed(x));
+      if(pool.length === 0) return null;
+      if(players === 1){
+        return pick(pool);
+      }
+      // players === 2: pick two, enforcing max 1 carrier between them
+      const first = pick(pool);
+      let second;
+      if(first === 'Aircraft Carrier'){
+        const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
+        second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
+      }else{
+        second = pick(pool);
+      }
+      return [first, second];
+    }
+    return null;
+  }
+
+  // try mapping first; if it yields a valid category (or categories), use it
+  // Note: rank will be provided by caller as number or '*'
+  // The caller of suggestCategory passes only nation, allowCarrier and players —
+  // to use mapping that depends on rank we need the rank value. We'll support
+  // mapping only when caller passes a special temporary property on the nation
+  // object called `_selectedRank` (set by onRandom) to keep calling convention simple.
+  const rankForMapping = nation && nation._selectedRank !== undefined ? nation._selectedRank : null;
+  if(rankForMapping !== null){
+    const mapped = applyMappingForRank(rankForMapping);
+    if(mapped) return Array.isArray(mapped) ? mapped.map(translateCategory) : translateCategory(mapped);
+  }
 
   // create a weighted pool favoring larger ships slightly
   const pool = [];
@@ -105,6 +356,18 @@ function applyResult({nation, rank, category}){
   $('nationName').textContent = nation.name || nation.id;
   $('rank').textContent = rank;
   const divider = $('typeDivider');
+  const catImg = $('categoryImg');
+  const catImg2 = $('categoryImg2');
+
+  function setCatImg(el, catDisplayed){
+    if(!el) return;
+    const base = assetCategoryName(catDisplayed);
+    const path = 'assets/categories/' + encodeURIComponent(base) + '.png';
+    el.src = path;
+    el.classList.remove('hidden');
+    if(el.dataset) el.dataset.attemptedFallback = '';
+  }
+
   if(Array.isArray(category)){
     $('category').textContent = category[0];
     $('category2').textContent = category[1];
@@ -112,12 +375,16 @@ function applyResult({nation, rank, category}){
     // ensure second type column + divider visible when two categories
     const t2 = $('type2'); if(t2) t2.classList.remove('hidden');
     if(divider) divider.classList.remove('hidden');
+    if(catImg) setCatImg(catImg, category[0]);
+    if(catImg2) setCatImg(catImg2, category[1]);
   }else{
     $('category').textContent = category;
     $('category2').classList.add('hidden');
     // hide second column + divider when single category
     const t2 = $('type2'); if(t2) t2.classList.add('hidden');
     if(divider) divider.classList.add('hidden');
+    if(catImg) setCatImg(catImg, category);
+    if(catImg2){ catImg2.classList.add('hidden'); catImg2.src = ''; }
   }
   const img = $('flagImg');
   if(nation.flag) img.src = nation.flag;
@@ -156,6 +423,36 @@ function setupFlagImageHandlers(){
   };
 }
 
+function setupCategoryImageHandlers(){
+  const imgs = [ $('categoryImg'), $('categoryImg2') ].filter(Boolean);
+  imgs.forEach(img => {
+    img.onerror = function(){
+      try{
+        const attempted = img.dataset && img.dataset.attemptedFallback;
+        if(!attempted){
+          if(img.dataset) img.dataset.attemptedFallback = '1';
+          const src = img.src || '';
+          if(src.endsWith('.png')){
+            img.src = src.replace(/\.png$/, '.svg');
+            console.warn('Category image missing, trying .svg alternative for', src);
+            return;
+          }else if(src.endsWith('.svg')){
+            img.src = src.replace(/\.svg$/, '.png');
+            console.warn('Category image missing, trying .png alternative for', src);
+            return;
+          }
+        }
+      }catch(e){}
+      img.classList.add('hidden');
+      img.src = '';
+    };
+    img.onload = function(){
+      img.classList.remove('hidden');
+      img.classList.add('object-contain');
+    };
+  });
+}
+
 function resetResult(){
   $('nationName').textContent = '—';
   $('rank').textContent = '—';
@@ -177,6 +474,8 @@ function resetResult(){
   if(divider) divider.classList.add('hidden');
   // hide flag image on reset
   const flag = $('flagImg'); if(flag) flag.classList.add('hidden');
+  const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg.classList.add('hidden'); }
+  const cimg2 = $('categoryImg2'); if(cimg2){ cimg2.src = ''; cimg2.classList.add('hidden'); }
 }
 
 async function onRandom(){
@@ -191,7 +490,12 @@ async function onRandom(){
   const idx = randomInt(nations.length);
   const nation = nations[idx];
   const rank = randomRank();
+  // expose the chosen rank temporarily on the nation object so suggestCategory
+  // can consult per-rank mappings defined in the nation (categoryByRank)
+  nation._selectedRank = rank;
   const category = suggestCategory(nation, allowCarrier, players);
+  // cleanup temporary field
+  delete nation._selectedRank;
   applyResult({nation, rank, category});
 }
 
@@ -250,6 +554,8 @@ function setup(){
   const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
   // setup flag image fallback handlers
   setupFlagImageHandlers();
+  // setup category images handlers
+  setupCategoryImageHandlers();
 }
 
 window.addEventListener('load', setup);
