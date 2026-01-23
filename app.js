@@ -13,7 +13,7 @@ const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","ca
     "*": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const nation_japan = {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true, categoryByRank: {
+const nation_japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true, categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -37,7 +37,7 @@ const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png
     "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const nation_germany = {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false, categoryByRank: {
+const nation_germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false, categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -74,7 +74,7 @@ const nation_france = {"id":"france","name":"France","flag":"assets/flags/france
     "*": ["Destroyer","Cruiser","Battleship"]
   }};
 
-const nation_italy = {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false, categoryByRank: {
+const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false, categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship"],
@@ -86,7 +86,7 @@ const nation_italy = {"id":"italy","name":"Italie","flag":"assets/flags/italy.pn
     "*": ["Destroyer","Cruiser","Battleship"]
   }};
 
-const nation_spain = {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false,
+const nation_spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,
   categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Cruiser"],
@@ -100,7 +100,7 @@ const nation_spain = {"id":"spain","name":"Espagne","flag":"assets/flags/spain.p
   }
 };
 
-const nation_netherlands = {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false, categoryByRank: {
+const nation_netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false, categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Cruiser"],
     "3": ["Cruiser"],
@@ -136,7 +136,7 @@ const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"a
     "*": ["Cruiser"]
   }};
 
-const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false, categoryByRank: {
+const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false, categoryByRank: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser"],
@@ -233,9 +233,9 @@ function randomRank(){
 function translateCategory(cat){
   const map = {
     'Destroyer': 'Destroyer',
-    'Cruiser': 'Croiseur',
-    'Battleship': 'Cuirassé',
-    'Aircraft Carrier': 'Porte-avions'
+    'Cruiser': 'Cruiser',
+    'Battleship': 'Battleship',
+    'Aircraft Carrier': 'Aircraft Carrier'
   };
   return map[cat] || cat;
 }
@@ -244,9 +244,9 @@ function translateCategory(cat){
 function assetCategoryName(displayed){
   const rev = {
     'Destroyer': 'Destroyer',
-    'Croiseur': 'Cruiser',
-    'Cuirassé': 'Battleship',
-    'Porte-avions': 'Aircraft Carrier'
+    'Cruiser': 'Cruiser',
+    'Battleship': 'Battleship',
+    'Aircraft Carrier': 'Aircraft Carrier'
   };
   return rev[displayed] || displayed;
 }
@@ -540,9 +540,9 @@ function setup(){
   $('allowCarrier').addEventListener('click', ()=>{
     const el = $('allowCarrier');
     if(el.classList.contains('bg-blue-600')){
-      el.classList.remove('bg-blue-600'); el.classList.add('bg-gray-700'); el.textContent='Porte-avions désactivé';
+      el.classList.remove('bg-blue-600'); el.classList.add('bg-gray-700'); el.textContent='Aircraft-Carrier disabled';
     }else{
-      el.classList.remove('bg-gray-700'); el.classList.add('bg-blue-600'); el.textContent='Porte-avions activé';
+      el.classList.remove('bg-gray-700'); el.classList.add('bg-blue-600'); el.textContent='Aircraft-Carrier enabled';
     }
     // resetting result when carrier preference changes
     resetResult();
@@ -551,7 +551,7 @@ function setup(){
   // initial state: set players mode to 2 (keeps classes consistent)
   setPlayersMode(2);
   // set carrier button default to disabled state
-  const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
+  const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Aircraft-Carrier disabled'; }
   // setup flag image fallback handlers
   setupFlagImageHandlers();
   // setup category images handlers
