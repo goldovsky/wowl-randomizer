@@ -1,6 +1,167 @@
 // Minimal logic for WoWSL Randomizer
 const DATA_PATH = 'data/nations.json';
 
+const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByRank: {
+    "1": ["Destroyer","Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_japan = {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+  
+const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_germany = {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+  }};
+
+const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+
+const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+const nation_italy = {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser","Battleship"],
+    "4": ["Destroyer","Cruiser","Battleship"],
+    "5": ["Destroyer","Cruiser","Battleship"],
+    "6": ["Destroyer","Cruiser","Battleship"],
+    "7": ["Destroyer","Cruiser","Battleship"],
+    "8": ["Destroyer","Cruiser","Battleship"],
+    "*": ["Destroyer","Cruiser","Battleship"]
+  }};
+
+const nation_spain = {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false,
+  categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Cruiser"],
+    "3": ["Cruiser"],
+    "4": ["Cruiser"],
+    "5": ["Cruiser"],
+    "6": ["Cruiser"],
+    "7": ["Cruiser"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }
+};
+
+const nation_netherlands = {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Cruiser"],
+    "3": ["Cruiser"],
+    "4": ["Cruiser"],
+    "5": ["Cruiser"],
+    "6": ["Cruiser"],
+    "7": ["Cruiser"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByRank: {
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": ["Battleship"],
+    "5": ["Destroyer"],
+    "6": [],
+    "7": ["Battleship"],
+    "8": [],
+    "*": []
+  }};
+
+const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByRank: {
+    "1": [],
+    "2": ["Destroyer"],
+    "3": [],
+    "4": [],
+    "5": ["Cruiser"],
+    "6": ["Battleship"],
+    "7": ["Destroyer"],
+    "8": ["Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false, categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer","Cruiser"],
+    "3": ["Destroyer","Cruiser"],
+    "4": ["Destroyer","Cruiser"],
+    "5": ["Destroyer","Cruiser"],
+    "6": ["Destroyer","Cruiser"],
+    "7": ["Destroyer","Cruiser"],
+    "8": ["Destroyer","Cruiser"],
+    "*": ["Cruiser"]
+  }};
+
+const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,
+  categoryByRank: {
+    "1": ["Cruiser"],
+    "2": ["Destroyer"],
+    "3": ["Destroyer"],
+    "4": ["Destroyer","Battleship"],
+    "5": ["Destroyer"],
+    "6": ["Destroyer","Battleship"],
+    "7": ["Destroyer","Cruiser"],
+    "8": ["Destroyer","Battleship"],
+    "*": ["Destroyer"]
+  }
+};
+
 // Embedded nations data — kept directly in app.js so the page works when opened
 // via file:// without CORS issues.
 // Nations list. Optional field `categoryByRank` lets you specify which ship
@@ -16,19 +177,19 @@ const DATA_PATH = 'data/nations.json';
 // they are used as the two player categories (subject to carrier rules). Otherwise the
 // array is treated as a pool to pick from.
 const NATIONS = [
-  {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true},
-  {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true},
-  {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false},
-  {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false},
-  {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true},
-  {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true},
-  {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false},
-  {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false},
-  {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false},
-  {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false},
-  {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false},
-  {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false},
-  {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false}
+  nation_usa,
+  nation_japan,
+  nation_ussr,
+  nation_germany,
+  nation_uk,
+  nation_commonwealth,
+  nation_france,
+  nation_italy,
+  nation_spain,
+  nation_netherlands,
+  nation_europe,
+  nation_pan_america,
+  nation_pan_asia,
 ];
 
 let nations = [];
