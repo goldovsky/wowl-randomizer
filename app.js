@@ -32,6 +32,11 @@ async function loadData(){
   if(!Array.isArray(nations) || nations.length === 0){
     console.error('loadData: no nations available after fetch and fallback. Disabling generate button.');
     const btn = $('randomBtn'); if(btn) btn.disabled = true;
+    const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: 0';
+  }
+  else{
+    const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: ' + nations.length;
+    const btn = $('randomBtn'); if(btn) btn.disabled = false;
   }
 }
 
@@ -183,6 +188,11 @@ async function onRandom(){
   if(nations.length===0) await loadData();
   const allowCarrier = $('allowCarrier').classList.contains('bg-blue-600');
   const players = $('twoPlayer').classList.contains('bg-blue-600') ? 2 : 1;
+  // quick guard: if still no nations, show an error and abort
+  if(!Array.isArray(nations) || nations.length===0){
+    alert('Aucune nation disponible — vérifiez la console ou recharger les données.');
+    return;
+  }
   // debug: log nations state to help diagnose biased selection
   try{ console.debug('onRandom: nations.length=', nations.length, 'ids=', (nations||[]).map(n=>n.id).slice(0,20)); }catch(e){}
   const idx = randomInt(nations.length);
@@ -195,6 +205,8 @@ async function onRandom(){
 
 function setup(){
   $('randomBtn').addEventListener('click', onRandom);
+  // reload data button
+  const reload = $('reloadData'); if(reload) reload.addEventListener('click', async ()=>{ reload.disabled=true; await loadData(); reload.disabled=false; });
   function setPlayersMode(players){
     const one = $('onePlayer');
     const two = $('twoPlayer');

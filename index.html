@@ -52,19 +52,26 @@
 
     <section class="w-full max-w-md mt-4">
       <div class="bg-gray-800 p-4 rounded-lg">
-        <div class="w-full">
+          <div class="w-full">
           <div class="flex gap-2 w-full">
             <div class="flex-1">
-              <button id="onePlayer" class="btn-toggle w-full py-2 px-3 rounded bg-gray-700">Un joueur</button>
+              <button id="onePlayer" class="btn-toggle w-full py-2 px-3 rounded bg-gray-700" aria-pressed="false">Un joueur</button>
             </div>
             <div class="flex-1">
-              <button id="twoPlayer" class="btn-toggle w-full py-2 px-3 rounded bg-blue-600">Deux joueurs</button>
+              <button id="twoPlayer" class="btn-toggle w-full py-2 px-3 rounded bg-blue-600" aria-pressed="true">Deux joueurs</button>
             </div>
           </div>
         </div>
 
         <div class="mt-3 w-full">
-          <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700">Porte-avions désactivé</button>
+          <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700" aria-pressed="false">Porte-avions désactivé</button>
+        </div>
+
+        <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
+          <div id="dataStatus">Nations chargées: —</div>
+          <div>
+            <button id="reloadData" class="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600">Recharger données</button>
+          </div>
         </div>
 
         <hr class="border-gray-700 my-4">
@@ -78,6 +85,7 @@
     <footer class="w-full max-w-md text-center text-xs text-gray-500 mt-4">pour <strong>Uroboros-Cthulhu</strong> &amp; <strong>Megalodon222</strong></footer>
   </main>
 
+  <script src="data/nations.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
