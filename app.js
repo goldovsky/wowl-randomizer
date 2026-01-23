@@ -6,26 +6,22 @@ let nations = [];
 function $(id){ return document.getElementById(id); }
 
 async function loadData(){
+  // Primary path: fetch JSON when available (recommended)
   try{
-    // try fetch first (works when served over http)
     const res = await fetch(DATA_PATH, { cache: 'no-store' });
-    nations = await res.json();
-  }catch(e){
-    // If fetch failed (eg. file://, CORS), attempt to read an embedded fallback
-    if(window && window.__NATIONS__ && Array.isArray(window.__NATIONS__)){
-      nations = window.__NATIONS__;
-      return;
+    if(res.ok){
+      nations = await res.json();
     }
-    // fallback: rely on embedded data if present, otherwise leave empty so caller can handle
-    nations = (window && window.__NATIONS__ && Array.isArray(window.__NATIONS__)) ? window.__NATIONS__ : [];
-  }
+  }catch(e){ /* fetch failed (likely file://), continue to module fallback */ }
 
-  // safety: if fetched nations looks too small (eg. only placeholder entries), prefer embedded fallback if available
-  try{
-      if(Array.isArray(nations) && nations.length <= 2 && window && window.__NATIONS__ && Array.isArray(window.__NATIONS__) && window.__NATIONS__.length > nations.length){
-       nations = window.__NATIONS__;
-     }
-  }catch(e){ /* ignore */ }
+  // Module fallback: when running without HTTP server, import the JS module
+  if(!Array.isArray(nations) || nations.length === 0){
+    try{
+      // dynamic import works for file:// when the file is loaded as a script module
+      const mod = await import('./data/nations.js');
+      if(mod && Array.isArray(mod.NATIONS)) nations = mod.NATIONS;
+    }catch(e){ /* ignore if import fails */ }
+  }
 
   if(!Array.isArray(nations) || nations.length === 0){
     const btn = $('randomBtn'); if(btn) btn.disabled = true;
