@@ -240,6 +240,17 @@ function translateCategory(cat){
   return map[cat] || cat;
 }
 
+// map localized labels back to English filenames used in assets/categories
+function assetCategoryName(displayed){
+  const rev = {
+    'Destroyer': 'Destroyer',
+    'Croiseur': 'Cruiser',
+    'Cuirassé': 'Battleship',
+    'Porte-avions': 'Aircraft Carrier'
+  };
+  return rev[displayed] || displayed;
+}
+
 function suggestCategory(nation, allowCarrier, players){
   const base = ['Destroyer','Cruiser','Battleship'];
   const categories = [...base];
@@ -345,6 +356,18 @@ function applyResult({nation, rank, category}){
   $('nationName').textContent = nation.name || nation.id;
   $('rank').textContent = rank;
   const divider = $('typeDivider');
+  const catImg = $('categoryImg');
+  const catImg2 = $('categoryImg2');
+
+  function setCatImg(el, catDisplayed){
+    if(!el) return;
+    const base = assetCategoryName(catDisplayed);
+    const path = 'assets/categories/' + encodeURIComponent(base) + '.png';
+    el.src = path;
+    el.classList.remove('hidden');
+    if(el.dataset) el.dataset.attemptedFallback = '';
+  }
+
   if(Array.isArray(category)){
     $('category').textContent = category[0];
     $('category2').textContent = category[1];
@@ -352,12 +375,16 @@ function applyResult({nation, rank, category}){
     // ensure second type column + divider visible when two categories
     const t2 = $('type2'); if(t2) t2.classList.remove('hidden');
     if(divider) divider.classList.remove('hidden');
+    if(catImg) setCatImg(catImg, category[0]);
+    if(catImg2) setCatImg(catImg2, category[1]);
   }else{
     $('category').textContent = category;
     $('category2').classList.add('hidden');
     // hide second column + divider when single category
     const t2 = $('type2'); if(t2) t2.classList.add('hidden');
     if(divider) divider.classList.add('hidden');
+    if(catImg) setCatImg(catImg, category);
+    if(catImg2){ catImg2.classList.add('hidden'); catImg2.src = ''; }
   }
   const img = $('flagImg');
   if(nation.flag) img.src = nation.flag;
@@ -396,6 +423,36 @@ function setupFlagImageHandlers(){
   };
 }
 
+function setupCategoryImageHandlers(){
+  const imgs = [ $('categoryImg'), $('categoryImg2') ].filter(Boolean);
+  imgs.forEach(img => {
+    img.onerror = function(){
+      try{
+        const attempted = img.dataset && img.dataset.attemptedFallback;
+        if(!attempted){
+          if(img.dataset) img.dataset.attemptedFallback = '1';
+          const src = img.src || '';
+          if(src.endsWith('.png')){
+            img.src = src.replace(/\.png$/, '.svg');
+            console.warn('Category image missing, trying .svg alternative for', src);
+            return;
+          }else if(src.endsWith('.svg')){
+            img.src = src.replace(/\.svg$/, '.png');
+            console.warn('Category image missing, trying .png alternative for', src);
+            return;
+          }
+        }
+      }catch(e){}
+      img.classList.add('hidden');
+      img.src = '';
+    };
+    img.onload = function(){
+      img.classList.remove('hidden');
+      img.classList.add('object-contain');
+    };
+  });
+}
+
 function resetResult(){
   $('nationName').textContent = '—';
   $('rank').textContent = '—';
@@ -417,6 +474,8 @@ function resetResult(){
   if(divider) divider.classList.add('hidden');
   // hide flag image on reset
   const flag = $('flagImg'); if(flag) flag.classList.add('hidden');
+  const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg.classList.add('hidden'); }
+  const cimg2 = $('categoryImg2'); if(cimg2){ cimg2.src = ''; cimg2.classList.add('hidden'); }
 }
 
 async function onRandom(){
@@ -495,6 +554,8 @@ function setup(){
   const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Porte-avions désactivé'; }
   // setup flag image fallback handlers
   setupFlagImageHandlers();
+  // setup category images handlers
+  setupCategoryImageHandlers();
 }
 
 window.addEventListener('load', setup);
