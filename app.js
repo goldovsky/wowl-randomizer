@@ -3,6 +3,18 @@ const DATA_PATH = 'data/nations.json';
 
 // Embedded nations data — kept directly in app.js so the page works when opened
 // via file:// without CORS issues.
+// Nations list. Optional field `categoryByRank` lets you specify which ship
+// categories are available for a given rank for that nation. Example:
+//   categoryByRank: {
+//     "1": "Destroyer",
+//     "5": ["Cruiser","Battleship"],   // for rank 5 offer either Cruiser or Battleship
+//     "8": ["Battleship","Battleship"], // for rank 8 prefer Battleship (weighting via duplicates)
+//     "*": "Destroyer"                  // mapping for legendary rank
+//   }
+// The values may be a string (single category), or an array (used as a choice pool).
+// When `players===2` and the mapping resolves to two explicit values (array length 2),
+// they are used as the two player categories (subject to carrier rules). Otherwise the
+// array is treated as a pool to pick from.
 const NATIONS = [
   {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true},
   {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true},
@@ -71,6 +83,73 @@ function suggestCategory(nation, allowCarrier, players){
   const base = ['Destroyer','Cruiser','Battleship'];
   const categories = [...base];
   if(allowCarrier && nation.carriers) categories.push('Aircraft Carrier');
+
+  // If the nation defines explicit categories per rank, use that mapping.
+  // The mapping keys are strings: '1'..'8' or '*'. Mapping values may be:
+  //  - a string (single category)
+  //  - an array: either [cat1, cat2] to explicitly assign both players,
+  //    or an array used as a pool of choices.
+  function applyMappingForRank(rank){
+    if(!nation || !nation.categoryByRank) return null;
+    const key = String(rank);
+    const m = nation.categoryByRank[key];
+    if(m === undefined) return null;
+    // helper to check carrier availability
+    const allowed = (cat) => !(cat === 'Aircraft Carrier' && (!allowCarrier || !nation.carriers));
+
+    if(typeof m === 'string'){
+      if(allowed(m)) return m;
+      return null; // mapping targets carrier but carriers not allowed => fall back
+    }
+    if(Array.isArray(m)){
+      // explicit two-slot assignment when exactly two strings are provided
+      if(players === 2 && m.length === 2 && typeof m[0] === 'string' && typeof m[1] === 'string'){
+        let a = m[0]; let b = m[1];
+        // enforce carrier rules: if one of them is an Aircraft Carrier but carriers not allowed, replace it later
+        if(!allowed(a)) a = null;
+        if(!allowed(b)) b = null;
+        // if both ended up as carriers and carriers are allowed, enforce max 1 carrier like original logic
+        if(a === 'Aircraft Carrier' && b === 'Aircraft Carrier'){
+          // prefer keeping first as carrier, replace second with fallback from categories
+          const poolNoCarrier = categories.filter(c => c !== 'Aircraft Carrier');
+          b = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories);
+        }
+        // if any slot became null because carriers not allowed, fill from pool
+        if(a == null) a = pick(categories.filter(allowed));
+        if(b == null) b = pick(categories.filter(allowed));
+        return [a, b];
+      }
+      // otherwise treat array as a pool to pick from
+      const pool = m.slice().filter(x => typeof x === 'string' && allowed(x));
+      if(pool.length === 0) return null;
+      if(players === 1){
+        return pick(pool);
+      }
+      // players === 2: pick two, enforcing max 1 carrier between them
+      const first = pick(pool);
+      let second;
+      if(first === 'Aircraft Carrier'){
+        const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
+        second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
+      }else{
+        second = pick(pool);
+      }
+      return [first, second];
+    }
+    return null;
+  }
+
+  // try mapping first; if it yields a valid category (or categories), use it
+  // Note: rank will be provided by caller as number or '*'
+  // The caller of suggestCategory passes only nation, allowCarrier and players —
+  // to use mapping that depends on rank we need the rank value. We'll support
+  // mapping only when caller passes a special temporary property on the nation
+  // object called `_selectedRank` (set by onRandom) to keep calling convention simple.
+  const rankForMapping = nation && nation._selectedRank !== undefined ? nation._selectedRank : null;
+  if(rankForMapping !== null){
+    const mapped = applyMappingForRank(rankForMapping);
+    if(mapped) return Array.isArray(mapped) ? mapped.map(translateCategory) : translateCategory(mapped);
+  }
 
   // create a weighted pool favoring larger ships slightly
   const pool = [];
@@ -191,7 +270,12 @@ async function onRandom(){
   const idx = randomInt(nations.length);
   const nation = nations[idx];
   const rank = randomRank();
+  // expose the chosen rank temporarily on the nation object so suggestCategory
+  // can consult per-rank mappings defined in the nation (categoryByRank)
+  nation._selectedRank = rank;
   const category = suggestCategory(nation, allowCarrier, players);
+  // cleanup temporary field
+  delete nation._selectedRank;
   applyResult({nation, rank, category});
 }
 
