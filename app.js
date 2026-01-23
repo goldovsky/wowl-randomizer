@@ -8,19 +8,30 @@ function $(id){ return document.getElementById(id); }
 async function loadData(){
   try{
     // try fetch first (works when served over http)
-    const res = await fetch(DATA_PATH);
+    const res = await fetch(DATA_PATH, { cache: 'no-store' });
     nations = await res.json();
+    console.debug('loadData: fetched', DATA_PATH, '->', Array.isArray(nations) ? nations.length : typeof nations);
   }catch(e){
     // If fetch failed (eg. file://, CORS), attempt to read an embedded fallback
     if(window && window.__NATIONS__ && Array.isArray(window.__NATIONS__)){
       nations = window.__NATIONS__;
       return;
     }
-    // final fallback: minimal placeholder
-    nations = [
-      { id:'usa', name:'USA', flag:'assets/flags/usa.png', carriers:true },
-      { id:'uk', name:'UK', flag:'assets/flags/uk.png', carriers:false },
-    ];
+    // fallback: rely on embedded data if present, otherwise leave empty so caller can handle
+    nations = (window && window.__NATIONS__ && Array.isArray(window.__NATIONS__)) ? window.__NATIONS__ : [];
+  }
+
+  // safety: if fetched nations looks too small (eg. only placeholder entries), prefer embedded fallback if available
+  try{
+    if(Array.isArray(nations) && nations.length <= 2 && window && window.__NATIONS__ && Array.isArray(window.__NATIONS__) && window.__NATIONS__.length > nations.length){
+      console.warn('loadData: fetched nations looks small (%d). Using embedded fallback with %d entries.', nations.length, window.__NATIONS__.length);
+      nations = window.__NATIONS__;
+    }
+  }catch(e){ /* ignore */ }
+
+  if(!Array.isArray(nations) || nations.length === 0){
+    console.error('loadData: no nations available after fetch and fallback. Disabling generate button.');
+    const btn = $('randomBtn'); if(btn) btn.disabled = true;
   }
 }
 
@@ -172,7 +183,11 @@ async function onRandom(){
   if(nations.length===0) await loadData();
   const allowCarrier = $('allowCarrier').classList.contains('bg-blue-600');
   const players = $('twoPlayer').classList.contains('bg-blue-600') ? 2 : 1;
-  const nation = pick(nations);
+  // debug: log nations state to help diagnose biased selection
+  try{ console.debug('onRandom: nations.length=', nations.length, 'ids=', (nations||[]).map(n=>n.id).slice(0,20)); }catch(e){}
+  const idx = randomInt(nations.length);
+  console.debug('onRandom: picked index', idx);
+  const nation = nations[idx];
   const rank = randomRank();
   const category = suggestCategory(nation, allowCarrier, players);
   applyResult({nation, rank, category});
