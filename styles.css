@@ -12,7 +12,7 @@ body{background:var(--bg);}
 .bg-gray-900\/40{ background-color: rgba(15,23,36,0.4) }
 
 /* make sure flag image covers area and doesn't stretch oddly */
-#flagImg{ object-fit:cover; height:12rem; width:100%; }
+#flagImg{ object-fit:cover; height:3rem; width:4rem; }
 
 /* subtle fade for divider and type columns */
 #typeDivider{ transition:opacity 160ms ease; }

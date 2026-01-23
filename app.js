@@ -92,7 +92,6 @@ function suggestCategory(nation, allowCarrier, players){
 
 function applyResult({nation, rank, category}){
   $('nationName').textContent = nation.name || nation.id;
-  $('nationId').textContent = nation.id;
   $('rank').textContent = rank;
   const divider = $('typeDivider');
   if(Array.isArray(category)){
@@ -111,6 +110,8 @@ function applyResult({nation, rank, category}){
   }
   const img = $('flagImg');
   if(nation.flag) img.src = nation.flag;
+  // show flag image when a result is present
+  const flag = $('flagImg'); if(flag) flag.classList.remove('hidden');
 }
 
 // Ensure flag image falls back to placeholder if the file is missing or fails to load
@@ -146,7 +147,6 @@ function setupFlagImageHandlers(){
 
 function resetResult(){
   $('nationName').textContent = '—';
-  $('nationId').textContent = '—';
   $('rank').textContent = '—';
   $('category').textContent = '—';
   const cat2 = $('category2');
@@ -164,6 +164,8 @@ function resetResult(){
   img.src = 'assets/flags/placeholder.svg';
   const divider = $('typeDivider');
   if(divider) divider.classList.add('hidden');
+  // hide flag image on reset
+  const flag = $('flagImg'); if(flag) flag.classList.add('hidden');
 }
 
 async function onRandom(){
