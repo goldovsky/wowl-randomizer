@@ -197,8 +197,7 @@ async function onRandom(){
 
 function setup(){
   $('randomBtn').addEventListener('click', onRandom);
-  // reload data button
-  const reload = $('reloadData'); if(reload) reload.addEventListener('click', async ()=>{ reload.disabled=true; await loadData(); reload.disabled=false; });
+  // reloadData removed (data embedded)
   function setPlayersMode(players){
     const one = $('onePlayer');
     const two = $('twoPlayer');
