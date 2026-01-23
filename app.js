@@ -1,33 +1,35 @@
 // Minimal logic for WoWSL Randomizer
 const DATA_PATH = 'data/nations.json';
 
+// Embedded nations data — kept directly in app.js so the page works when opened
+// via file:// without CORS issues.
+const NATIONS = [
+  {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true},
+  {"id":"japan","name":"Japon","flag":"assets/flags/japan.png","carriers":true},
+  {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false},
+  {"id":"germany","name":"Allemagne","flag":"assets/flags/germany.png","carriers":false},
+  {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true},
+  {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true},
+  {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false},
+  {"id":"italy","name":"Italie","flag":"assets/flags/italy.png","carriers":false},
+  {"id":"spain","name":"Espagne","flag":"assets/flags/spain.png","carriers":false},
+  {"id":"netherlands","name":"Pays-Bas","flag":"assets/flags/netherlands.png","carriers":false},
+  {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false},
+  {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false},
+  {"id":"pan-asia","name":"Pan-Asie","flag":"assets/flags/pan-asia.png","carriers":false}
+];
+
 let nations = [];
 
 function $(id){ return document.getElementById(id); }
 
 async function loadData(){
-  // Primary path: fetch JSON when available (recommended)
-  try{
-    const res = await fetch(DATA_PATH, { cache: 'no-store' });
-    if(res.ok){
-      nations = await res.json();
-    }
-  }catch(e){ /* fetch failed (likely file://), continue to module fallback */ }
-
-  // Module fallback: when running without HTTP server, import the JS module
-  if(!Array.isArray(nations) || nations.length === 0){
-    try{
-      // dynamic import works for file:// when the file is loaded as a script module
-      const mod = await import('./data/nations.js');
-      if(mod && Array.isArray(mod.NATIONS)) nations = mod.NATIONS;
-    }catch(e){ /* ignore if import fails */ }
-  }
-
+  // Use embedded data for reliability when opened locally (file://)
+  nations = Array.isArray(NATIONS) ? NATIONS.slice() : [];
   if(!Array.isArray(nations) || nations.length === 0){
     const btn = $('randomBtn'); if(btn) btn.disabled = true;
     const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: 0';
-  }
-  else{
+  }else{
     const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: ' + nations.length;
     const btn = $('randomBtn'); if(btn) btn.disabled = false;
   }
