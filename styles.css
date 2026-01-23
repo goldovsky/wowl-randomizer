@@ -1,0 +1,12 @@
+:root{
+  --bg:#0f1724;
+}
+body{background:var(--bg);}
+.btn-toggle{min-width:40px}
+
+.hidden{display:none}
+
+/* center small header paragraph */
+.text-center{ text-align:center }
+
+.bg-gray-900\/40{ background-color: rgba(15,23,36,0.4) }
