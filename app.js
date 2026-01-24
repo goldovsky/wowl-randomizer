@@ -83,7 +83,7 @@ const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png
     "6": ["Destroyer","Cruiser","Battleship"],
     "7": ["Destroyer","Cruiser","Battleship"],
     "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship"]
+    "*": ["Cruiser","Battleship"]
   }};
 
 const nation_spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,
