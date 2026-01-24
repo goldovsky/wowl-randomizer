@@ -2,163 +2,163 @@
 const DATA_PATH = 'data/nations.json';
 
 const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByTier: {
-    "1": ["Destroyer","Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
+    "Ⅰ": ["Destroyer","Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
 const nation_japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
   
 const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
 const nation_germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
 const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer","Cruiser","Battleship"]
   }};
 
 
 const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Destroyer","Cruiser","Battleship"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Destroyer","Cruiser","Battleship"]
   }};
 
 const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser","Battleship"],
-    "4": ["Destroyer","Cruiser","Battleship"],
-    "5": ["Destroyer","Cruiser","Battleship"],
-    "6": ["Destroyer","Cruiser","Battleship"],
-    "7": ["Destroyer","Cruiser","Battleship"],
-    "8": ["Destroyer","Cruiser","Battleship"],
-    "*": ["Cruiser","Battleship"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅳ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅴ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅵ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser","Battleship"],
+    "Ⅷ": ["Destroyer","Cruiser","Battleship"],
+    "⭐": ["Cruiser","Battleship"]
   }};
 
 const nation_spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,
   categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Cruiser"],
-    "3": ["Cruiser"],
-    "4": ["Cruiser"],
-    "5": ["Cruiser"],
-    "6": ["Cruiser"],
-    "7": ["Cruiser"],
-    "8": ["Cruiser"],
-    "*": ["Cruiser"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Cruiser"],
+    "Ⅲ": ["Cruiser"],
+    "Ⅳ": ["Cruiser"],
+    "Ⅴ": ["Cruiser"],
+    "Ⅵ": ["Cruiser"],
+    "Ⅶ": ["Cruiser"],
+    "Ⅷ": ["Cruiser"],
+    "⭐": ["Cruiser"]
   }
 };
 
 const nation_netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Cruiser"],
-    "3": ["Cruiser"],
-    "4": ["Cruiser"],
-    "5": ["Cruiser"],
-    "6": ["Cruiser"],
-    "7": ["Cruiser"],
-    "8": ["Cruiser"],
-    "*": ["Cruiser"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Cruiser"],
+    "Ⅲ": ["Cruiser"],
+    "Ⅳ": ["Cruiser"],
+    "Ⅴ": ["Cruiser"],
+    "Ⅵ": ["Cruiser"],
+    "Ⅶ": ["Cruiser"],
+    "Ⅷ": ["Cruiser"],
+    "⭐": ["Cruiser"]
   }};
 
 const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByTier: {
-    "1": [],
-    "2": [],
-    "3": [],
-    "4": ["Battleship"],
-    "5": ["Destroyer"],
-    "6": [],
-    "7": ["Battleship"],
-    "8": [],
-    "*": []
+    "Ⅰ": [],
+    "Ⅱ": [],
+    "Ⅲ": [],
+    "Ⅳ": ["Battleship"],
+    "Ⅴ": ["Destroyer"],
+    "Ⅵ": [],
+    "Ⅶ": ["Battleship"],
+    "Ⅷ": [],
+    "⭐": []
   }};
 
 const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByTier: {
-    "1": [],
-    "2": ["Destroyer"],
-    "3": [],
-    "4": [],
-    "5": ["Cruiser"],
-    "6": ["Battleship"],
-    "7": ["Destroyer"],
-    "8": ["Cruiser"],
-    "*": ["Cruiser"]
+    "Ⅰ": [],
+    "Ⅱ": ["Destroyer"],
+    "Ⅲ": [],
+    "Ⅳ": [],
+    "Ⅴ": ["Cruiser"],
+    "Ⅵ": ["Battleship"],
+    "Ⅶ": ["Destroyer"],
+    "Ⅷ": ["Cruiser"],
+    "⭐": ["Cruiser"]
   }};
 
 const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false, categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer","Cruiser"],
-    "3": ["Destroyer","Cruiser"],
-    "4": ["Destroyer","Cruiser"],
-    "5": ["Destroyer","Cruiser"],
-    "6": ["Destroyer","Cruiser"],
-    "7": ["Destroyer","Cruiser"],
-    "8": ["Destroyer","Cruiser"],
-    "*": ["Cruiser"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer","Cruiser"],
+    "Ⅲ": ["Destroyer","Cruiser"],
+    "Ⅳ": ["Destroyer","Cruiser"],
+    "Ⅴ": ["Destroyer","Cruiser"],
+    "Ⅵ": ["Destroyer","Cruiser"],
+    "Ⅶ": ["Destroyer","Cruiser"],
+    "Ⅷ": ["Destroyer","Cruiser"],
+    "⭐": ["Cruiser"]
   }};
 
 const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,
   categoryByTier: {
-    "1": ["Cruiser"],
-    "2": ["Destroyer"],
-    "3": ["Destroyer"],
-    "4": ["Destroyer","Battleship"],
-    "5": ["Destroyer"],
-    "6": ["Destroyer","Battleship"],
-    "7": ["Destroyer","Cruiser"],
-    "8": ["Destroyer","Battleship"],
-    "*": ["Destroyer"]
+    "Ⅰ": ["Cruiser"],
+    "Ⅱ": ["Destroyer"],
+    "Ⅲ": ["Destroyer"],
+    "Ⅳ": ["Destroyer","Battleship"],
+    "Ⅴ": ["Destroyer"],
+    "Ⅵ": ["Destroyer","Battleship"],
+    "Ⅶ": ["Destroyer","Cruiser"],
+    "Ⅷ": ["Destroyer","Battleship"],
+    "⭐": ["Destroyer"]
   }
 };
 
@@ -167,10 +167,10 @@ const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe
 // Nations list. Optional field `categoryByTier` lets you specify which ship
 // categories are available for a given tier for that nation. Example:
 //   categoryByTier: {
-//     "1": "Destroyer",
-//     "5": ["Cruiser","Battleship"],   // for tier 5 offer either Cruiser or Battleship
-//     "8": ["Battleship","Battleship"], // for tier 8 prefer Battleship (weighting via duplicates)
-//     "*": "Destroyer"                  // mapping for legendary tier
+//     "Ⅰ": "Destroyer",
+//     "Ⅴ": ["Cruiser","Battleship"],   // for tier Ⅴ offer either Cruiser or Battleship
+//     "Ⅷ": ["Battleship","Battleship"], // for tier Ⅷ prefer Battleship (weighting via duplicates)
+//     "⭐": "Destroyer"                  // mapping for legendary tier
 //   }
 // The values may be a string (single category), or an array (used as a choice pool).
 // When `players===2` and the mapping resolves to two explicit values (array length 2),
@@ -215,17 +215,17 @@ function pick(arr){ return arr[randomInt(arr.length)]; }
 // Weighted tier selection: very rare -> common
 function randomTier(){
   // weights tuned to prefer V-VIII and legendary
-  // tiers: 1..8 and '*'
+  // tiers: Ⅰ..Ⅷ and '⭐'
   const weighted = [
-    1, // very rare (1)
-    2,2, // very rare (2)
-    3,3,3, // rare
-    4,4,4,4, // pas commun
-    5,5,5,5,5, // commun
-    6,6,6,6,6,6, // plus fort
-    7,7,7,7,7,7, // plus fort
-    8,8,8,8,8,8,8, // très commun
-    '*','*','*','*','*','*','*','*' // légendaire très commun
+    'Ⅰ', // very rare (Ⅰ)
+    'Ⅱ','Ⅱ', // very rare (Ⅱ)
+    'Ⅲ','Ⅲ','Ⅲ', // rare
+    'Ⅳ','Ⅳ','Ⅳ','Ⅳ', // pas commun
+    'Ⅴ','Ⅴ','Ⅴ','Ⅴ','Ⅴ', // commun
+    'Ⅵ','Ⅵ','Ⅵ','Ⅵ','Ⅵ','Ⅵ', // plus fort
+    'Ⅶ','Ⅶ','Ⅶ','Ⅶ','Ⅶ','Ⅶ', // plus fort
+    'Ⅷ','Ⅷ','Ⅷ','Ⅷ','Ⅷ','Ⅷ','Ⅷ', // très commun
+    '⭐','⭐','⭐','⭐','⭐','⭐','⭐','⭐' // légendaire très commun
   ];
   return pick(weighted);
 }
@@ -257,7 +257,7 @@ function suggestCategory(nation, allowCarrier, players){
   if(allowCarrier && nation.carriers) categories.push('Aircraft Carrier');
 
   // If the nation defines explicit categories per tier, use that mapping.
-  // The mapping keys are strings: '1'..'8' or '*'. Mapping values may be:
+  // The mapping keys are strings: '1'..'8' or '⭐'. Mapping values may be:
   //  - a string (single category)
   //  - an array: either [cat1, cat2] to explicitly assign both players,
   //    or an array used as a pool of choices.
@@ -312,7 +312,7 @@ function suggestCategory(nation, allowCarrier, players){
   }
 
   // try mapping first; if it yields a valid category (or categories), use it
-  // Note: tier will be provided by caller as number or '*'
+  // Note: tier will be provided by caller as number or '⭐'
   // The caller of suggestCategory passes only nation, allowCarrier and players —
   // to use mapping that depends on tier we need the tier value. We'll support
   // mapping only when caller passes a special temporary property on the nation
