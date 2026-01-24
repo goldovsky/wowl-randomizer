@@ -350,7 +350,7 @@ function suggestCategory(nation, allowCarrier, players){
   return sel;
 }
 
-function applyResult({nation, tier, category}){
+function applyResult({nation, tier, category, players=1}){
   $('nationName').textContent = nation.name || nation.id;
   $('tier').textContent = tier;
   const divider = $('typeDivider');
@@ -367,12 +367,19 @@ function applyResult({nation, tier, category}){
       if(el.dataset) el.dataset.attemptedFallback = '';
     }
 
+    function formatLabel(cat){
+      if(!cat) return '—';
+      // when in 3-player mode abbreviate long "Aircraft Carrier" label to avoid wrapping
+      if(players === 3 && cat === 'Aircraft Carrier') return 'A. Carrier';
+      return cat;
+    }
+
   if(Array.isArray(category)){
     // support arrays of length 2 or 3
     const len = category.length;
-    $('category').textContent = category[0] || '—';
+    $('category').textContent = formatLabel(category[0]) || '—';
     if(len >= 2){
-      $('category2').textContent = category[1] || '—';
+      $('category2').textContent = formatLabel(category[1]) || '—';
       $('category2')?.classList.remove('hidden');
       $('type2')?.classList.remove('hidden');
       if(divider) divider?.classList.remove('hidden');
@@ -384,7 +391,7 @@ function applyResult({nation, tier, category}){
       if(catImg2){ catImg2?.classList.add('hidden'); catImg2.src = ''; }
     }
     if(len >= 3){
-      $('category3').textContent = category[2] || '—';
+      $('category3').textContent = formatLabel(category[2]) || '—';
       $('category3')?.classList.remove('hidden');
       $('type3')?.classList.remove('hidden');
       const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.remove('hidden');
@@ -398,7 +405,7 @@ function applyResult({nation, tier, category}){
     // set first category image
     if(catImg) setCatImg(catImg, category[0]);
   }else{
-    $('category').textContent = category;
+    $('category').textContent = formatLabel(category);
     $('category2')?.classList.add('hidden');
     $('category3')?.classList.add('hidden');
     // hide second column + divider when single category
@@ -546,7 +553,8 @@ async function onRandom(){
   // cleanup temporary field
   delete nation._selectedTier;
   // pass chosen tier into applyResult using the new param name
-  applyResult({nation, tier, category});
+  // forward players so applyResult can adapt label formatting
+  applyResult({nation, tier, category, players});
 }
 
 function setup(){
