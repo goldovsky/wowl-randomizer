@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr">
-<head>
+  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>WoWSL Randomizer</title>
@@ -11,7 +11,12 @@
   <link rel="shortcut icon" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon.svg">
   <meta name="theme-color" content="#0f172a">
-</head>
+  <style>
+    /* submenu slide using max-height to animate */
+    #submenu{ max-height: 0; overflow: hidden; transition: max-height 260ms ease-in-out; }
+    #submenu.open{ max-height: 240px; }
+  </style>
+  </head>
 <body class="bg-gray-900 text-white min-h-screen">
   <main class="min-h-screen flex flex-col items-center justify-between p-4">
       <header class="w-full max-w-md text-center">
@@ -86,10 +91,17 @@
         </div>
 
         <div class="mt-3 w-full">
-          <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700" aria-pressed="false">Aircraft-Carrier disabled</button>
+          <div class="flex items-center gap-3">
+            <div class="h-px bg-gray-700" aria-hidden="true" style="flex:1"></div>
+            <button id="submenuToggle" class="h-10 flex items-center justify-center rounded bg-gray-700" aria-expanded="false" aria-controls="submenu" aria-label="Options" style="flex:4">Options</button>
+            <div class="h-px bg-gray-700" aria-hidden="true" style="flex:1"></div>
+          </div>
+          <div id="submenu" class="mt-2">
+            <div>
+              <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700" aria-pressed="false">Aircraft-Carrier disabled</button>
+            </div>
+          </div>
         </div>
-
-        <!-- Data status and reload removed: app uses embedded data now -->
 
         <hr class="border-gray-700 my-4">
 
