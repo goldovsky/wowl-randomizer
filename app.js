@@ -617,6 +617,21 @@ function setup(){
       else { delete el.dataset.selected; el.setAttribute('aria-pressed', 'false'); }
     });
 
+    // close options submenu when player mode changes
+    try{
+      const submenu = $('submenu');
+      const submenuToggle = $('submenuToggle');
+      if(submenu && submenu.classList.contains('open')){
+        submenu.classList.remove('open');
+        if(submenuToggle){
+          submenuToggle.classList.remove('bg-blue-600');
+          submenuToggle.classList.add('bg-gray-700');
+          submenuToggle.setAttribute('aria-expanded','false');
+          submenuToggle.textContent = 'Options';
+        }
+      }
+    }catch(e){/* ignore */}
+
     // reset result whenever mode changes
     resetResult();
   }
@@ -626,16 +641,34 @@ function setup(){
   $('threePlayer').addEventListener('click', ()=> setPlayersMode(3));
 
   // carrier toggle behaviour
-  $('allowCarrier').addEventListener('click', ()=>{
-    const el = $('allowCarrier');
-    if(el?.classList.contains('bg-blue-600')){
-      el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700'); el.textContent='Aircraft-Carrier disabled';
-    }else{
-      el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600'); el.textContent='Aircraft-Carrier enabled';
-    }
-    // resetting result when carrier preference changes
-    resetResult();
-  });
+  // submenu toggle + carrier toggle behaviour
+  const submenuToggle = $('submenuToggle');
+  const submenu = $('submenu');
+  if(submenuToggle && submenu){
+    submenuToggle.addEventListener('click', ()=>{
+      const open = submenu.classList.toggle('open');
+      submenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      // change button color when open
+      if(open){ submenuToggle.classList.remove('bg-gray-700'); submenuToggle.classList.add('bg-blue-600'); }
+      else { submenuToggle.classList.remove('bg-blue-600'); submenuToggle.classList.add('bg-gray-700'); }
+    });
+  }
+
+  const allowEl = $('allowCarrier');
+  if(allowEl){
+    allowEl.addEventListener('click', ()=>{
+      const el = allowEl;
+      if(el?.classList.contains('bg-blue-600')){
+        el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700'); el.textContent='Aircraft-Carrier disabled';
+        el.setAttribute('aria-pressed','false');
+      }else{
+        el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600'); el.textContent='Aircraft-Carrier enabled';
+        el.setAttribute('aria-pressed','true');
+      }
+      // resetting result when carrier preference changes
+      resetResult();
+    });
+  }
 
   // initial state: set players mode to 2 (keeps classes consistent)
   setPlayersMode(2);
