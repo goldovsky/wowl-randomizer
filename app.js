@@ -236,19 +236,38 @@ function suggestCategory(nation, allowCarrier, players){
       return null; // mapping targets carrier but carriers not allowed => fall back
     }
     if(Array.isArray(m)){
+      // explicit three-slot assignment when exactly three strings are provided
+      if(players === 3 && m.length === 3 && typeof m[0] === 'string' && typeof m[1] === 'string' && typeof m[2] === 'string'){
+        let a = m[0]; let b = m[1]; let c = m[2];
+        if(!allowed(a)) a = null;
+        if(!allowed(b)) b = null;
+        if(!allowed(c)) c = null;
+        // if more than one carrier present, keep the first carrier and replace others
+        const slots = [a,b,c];
+        const carrierIndices = slots.map((s, i) => s === 'Aircraft Carrier' ? i : -1).filter(i => i >= 0);
+        if(carrierIndices.length > 1){
+          // keep first carrier, replace others from fallback pool without carriers
+          const poolNoCarrier = categories.filter(x => x !== 'Aircraft Carrier').filter(allowed);
+          for(let i = 1; i < carrierIndices.length; i++){
+            const idx = carrierIndices[i];
+            slots[idx] = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories.filter(allowed));
+          }
+        }
+        // fill any null slots from allowed pool
+        for(let i=0;i<3;i++) if(slots[i]==null) slots[i] = pick(categories.filter(allowed));
+        return slots;
+      }
       // explicit two-slot assignment when exactly two strings are provided
       if(players === 2 && m.length === 2 && typeof m[0] === 'string' && typeof m[1] === 'string'){
         let a = m[0]; let b = m[1];
         // enforce carrier rules: if one of them is an Aircraft Carrier but carriers not allowed, replace it later
         if(!allowed(a)) a = null;
         if(!allowed(b)) b = null;
-        // if both ended up as carriers and carriers are allowed, enforce max 1 carrier like original logic
+        // if both ended up as carriers and carriers are allowed, enforce max 1 carrier
         if(a === 'Aircraft Carrier' && b === 'Aircraft Carrier'){
-          // prefer keeping first as carrier, replace second with fallback from categories
           const poolNoCarrier = categories.filter(c => c !== 'Aircraft Carrier');
           b = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories);
         }
-        // if any slot became null because carriers not allowed, fill from pool
         if(a == null) a = pick(categories.filter(allowed));
         if(b == null) b = pick(categories.filter(allowed));
         return [a, b];
@@ -259,16 +278,33 @@ function suggestCategory(nation, allowCarrier, players){
       if(players === 1){
         return pick(pool);
       }
-      // players === 2: pick two, enforcing max 1 carrier between them
-      const first = pick(pool);
-      let second;
-      if(first === 'Aircraft Carrier'){
-        const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
-        second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
-      }else{
-        second = pick(pool);
+      if(players === 2){
+        // players === 2: pick two, enforcing max 1 carrier between them
+        const first = pick(pool);
+        let second;
+        if(first === 'Aircraft Carrier'){
+          const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
+          second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
+        }else{
+          second = pick(pool);
+        }
+        return [first, second];
       }
-      return [first, second];
+      // players === 3: pick three, enforcing max 1 carrier among them
+      const pickPool = pool.slice();
+      const result = [];
+      let carrierChosen = false;
+      for(let i=0;i<3;i++){
+        let candidatePool = pickPool;
+        if(carrierChosen){
+          candidatePool = pickPool.filter(c => c !== 'Aircraft Carrier');
+        }
+        if(candidatePool.length === 0) candidatePool = pickPool;
+        const sel = pick(candidatePool);
+        result.push(sel);
+        if(sel === 'Aircraft Carrier') carrierChosen = true;
+      }
+      return result;
     }
     return null;
   }
@@ -314,43 +350,78 @@ function suggestCategory(nation, allowCarrier, players){
   return sel;
 }
 
-function applyResult({nation, tier, category}){
+function applyResult({nation, tier, category, players=1}){
   $('nationName').textContent = nation.name || nation.id;
   $('tier').textContent = tier;
   const divider = $('typeDivider');
+  const divider2 = $('typeDivider2');
   const catImg = $('categoryImg');
   const catImg2 = $('categoryImg2');
+  const catImg3 = $('categoryImg3');
 
     function setCatImg(el, catDisplayed){
       if(!el) return;
       const path = 'assets/categories/' + encodeURIComponent(catDisplayed) + '.png';
       el.src = path;
-      el.classList.remove('hidden');
+      el?.classList.remove('hidden');
       if(el.dataset) el.dataset.attemptedFallback = '';
     }
 
+    function formatLabel(cat){
+      if(!cat) return '—';
+      // when in 3-player mode abbreviate long "Aircraft Carrier" label to avoid wrapping
+      if(players === 3 && cat === 'Aircraft Carrier') return 'A. Carrier';
+      return cat;
+    }
+
   if(Array.isArray(category)){
-    $('category').textContent = category[0];
-    $('category2').textContent = category[1];
-    $('category2').classList.remove('hidden');
-    // ensure second type column + divider visible when two categories
-    const t2 = $('type2'); if(t2) t2.classList.remove('hidden');
-    if(divider) divider.classList.remove('hidden');
+    // support arrays of length 2 or 3
+    const len = category.length;
+    $('category').textContent = formatLabel(category[0]) || '—';
+    if(len >= 2){
+      $('category2').textContent = formatLabel(category[1]) || '—';
+      $('category2')?.classList.remove('hidden');
+      $('type2')?.classList.remove('hidden');
+      if(divider) divider?.classList.remove('hidden');
+      if(catImg2) setCatImg(catImg2, category[1]);
+    }else{
+      $('category2')?.classList.add('hidden');
+      $('type2')?.classList.add('hidden');
+      if(divider) divider?.classList.add('hidden');
+      if(catImg2){ catImg2?.classList.add('hidden'); catImg2.src = ''; }
+    }
+    if(len >= 3){
+      $('category3').textContent = formatLabel(category[2]) || '—';
+      $('category3')?.classList.remove('hidden');
+      $('type3')?.classList.remove('hidden');
+      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.remove('hidden');
+      if(catImg3) setCatImg(catImg3, category[2]);
+    }else{
+      $('category3')?.classList.add('hidden');
+      $('type3')?.classList.add('hidden');
+      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
+      if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
+    }
+    // set first category image
     if(catImg) setCatImg(catImg, category[0]);
-    if(catImg2) setCatImg(catImg2, category[1]);
   }else{
-    $('category').textContent = category;
-    $('category2').classList.add('hidden');
+    $('category').textContent = formatLabel(category);
+    $('category2')?.classList.add('hidden');
+    $('category3')?.classList.add('hidden');
     // hide second column + divider when single category
-    const t2 = $('type2'); if(t2) t2.classList.add('hidden');
-    if(divider) divider.classList.add('hidden');
+    $('type2')?.classList.add('hidden');
+    if(divider) divider?.classList.add('hidden');
     if(catImg) setCatImg(catImg, category);
-    if(catImg2){ catImg2.classList.add('hidden'); catImg2.src = ''; }
+    if(catImg2){ catImg2?.classList.add('hidden'); catImg2.src = ''; }
+    // hide third column + divider when single category
+    $('type3')?.classList.add('hidden');
+    if(divider2) divider2?.classList.add('hidden');
+    if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
   }
   const img = $('flagImg');
   if(nation.flag) img.src = nation.flag;
   // show flag image when a result is present
-  const flag = $('flagImg'); if(flag) flag.classList.remove('hidden');
+  const flag = $('flagImg'); if(flag) flag?.classList.remove('hidden');
 }
 
 // Ensure flag image falls back to placeholder if the file is missing or fails to load
@@ -380,12 +451,12 @@ function setupFlagImageHandlers(){
   };
   img.onload = function(){
     // keep subtle background look but ensure image is visible
-    img.classList.add('object-cover');
+    img?.classList.add('object-cover');
   };
 }
 
 function setupCategoryImageHandlers(){
-  const imgs = [ $('categoryImg'), $('categoryImg2') ].filter(Boolean);
+  const imgs = [ $('categoryImg'), $('categoryImg2'), $('categoryImg3') ].filter(Boolean);
   imgs.forEach(img => {
     img.onerror = function(){
       try{
@@ -404,12 +475,12 @@ function setupCategoryImageHandlers(){
           }
         }
       }catch(e){}
-      img.classList.add('hidden');
+      img?.classList.add('hidden');
       img.src = '';
     };
     img.onload = function(){
-      img.classList.remove('hidden');
-      img.classList.add('object-contain');
+      img?.classList.remove('hidden');
+      img?.classList.add('object-contain');
     };
   });
 }
@@ -418,35 +489,60 @@ function resetResult(){
   $('nationName').textContent = '—';
   $('tier').textContent = '—';
   $('category').textContent = '—';
+  
   const cat2 = $('category2');
   if(cat2){
     cat2.textContent = '—';
     // keep category2 visible only if the second slot container is visible
     const t2 = $('type2');
-    if(t2 && !t2.classList.contains('hidden')){
-      cat2.classList.remove('hidden');
+    if(t2 && !t2?.classList.contains('hidden')){
+      cat2?.classList.remove('hidden');
     }else{
-      cat2.classList.add('hidden');
+      cat2?.classList.add('hidden');
     }
   }
+
+  const cat3 = $('category3');
+  if(cat3){
+    cat3.textContent = '—';
+    // keep category3 visible only if the second slot container is visible
+    const t3 = $('type3');
+    if(t3 && !t3?.classList.contains('hidden')){
+      cat3?.classList.remove('hidden');
+    }else{
+      cat3?.classList.add('hidden');
+    }
+  }
+
   const img = $('flagImg');
   img.src = 'assets/flags/placeholder.svg';
   const divider = $('typeDivider');
-  if(divider) divider.classList.add('hidden');
+  if(divider) divider?.classList.add('hidden');
+  const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
   // hide flag image on reset
-  const flag = $('flagImg'); if(flag) flag.classList.add('hidden');
-  const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg.classList.add('hidden'); }
-  const cimg2 = $('categoryImg2'); if(cimg2){ cimg2.src = ''; cimg2.classList.add('hidden'); }
+  $('flagImg')?.classList.add('hidden');
+  const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg?.classList.add('hidden'); }
+  const cimg2 = $('categoryImg2'); if(cimg2){ cimg2.src = ''; cimg2?.classList.add('hidden'); }
+  const cimg3 = $('categoryImg3'); if(cimg3){ cimg3.src = ''; cimg3?.classList.add('hidden'); }
 }
 
 async function onRandom(){
-  const allowCarrier = $('allowCarrier').classList.contains('bg-blue-600');
-  const players = $('twoPlayer').classList.contains('bg-blue-600') ? 2 : 1;
-  // quick guard: if still no nations, show an error and abort
-  if(!Array.isArray(nations) || nations.length===0){
-    alert('Aucune nation disponible — vérifiez la console ou recharger les données.');
-    return;
+  const allowCarrier = $('allowCarrier')?.classList.contains('bg-blue-600');
+  // detect selected players mode: prefer dataset.selected, then visual classes for backward compatibility
+  let players = 1;
+  const threeEl = $('threePlayer');
+  const twoEl = $('twoPlayer');
+  const oneEl = $('onePlayer');
+  if(threeEl && threeEl.dataset && threeEl.dataset.selected === '1') players = 3;
+  else if(twoEl && twoEl.dataset && twoEl.dataset.selected === '1') players = 2;
+  else if(oneEl && oneEl.dataset && oneEl.dataset.selected === '1') players = 1;
+  else {
+    // fallback to inspecting classes (support both bg-blue-600 and bg-blue-700)
+    const isBlue = (el) => el && (el.classList.contains('bg-blue-600') || el.classList.contains('bg-blue-700'));
+    if(isBlue(threeEl)) players = 3;
+    else if(isBlue(twoEl)) players = 2;
   }
+
   const idx = randomInt(nations.length);
   const nation = nations[idx];
   const tier = randomTier();
@@ -457,7 +553,8 @@ async function onRandom(){
   // cleanup temporary field
   delete nation._selectedTier;
   // pass chosen tier into applyResult using the new param name
-  applyResult({nation, tier, category});
+  // forward players so applyResult can adapt label formatting
+  applyResult({nation, tier, category, players});
 }
 
 function setup(){
@@ -466,44 +563,75 @@ function setup(){
   function setPlayersMode(players){
     const one = $('onePlayer');
     const two = $('twoPlayer');
+    const three = $('threePlayer');
     const type2 = $('type2');
     const divider = $('typeDivider');
-    // normalize classes: remove both color classes then add desired
-    if(one){ one.classList.remove('bg-blue-600','bg-gray-700'); }
-    if(two){ two.classList.remove('bg-blue-600','bg-gray-700'); }
-    if(players===1){
-      if(one) one.classList.add('bg-blue-600');
-      if(two) two.classList.add('bg-gray-700');
-      // hide second type
-      if(type2) type2.classList.add('hidden');
-      // hide labels
-      const p1 = $('player1Label'), p2 = $('player2Label'); if(p1) p1.classList.add('hidden'); if(p2) p2.classList.add('hidden');
-      // hide divider
-      if(divider) divider.classList.add('hidden');
-    }else{
-      if(two) two.classList.add('bg-blue-600');
-      if(one) one.classList.add('bg-gray-700');
-      // show second type
-      if(type2) type2.classList.remove('hidden');
-      // show labels
-      const p1 = $('player1Label'), p2 = $('player2Label'); if(p1) p1.classList.remove('hidden'); if(p2) p2.classList.remove('hidden');
-      // show divider
-      if(divider) divider.classList.remove('hidden');
+    
+    // normalize classes: remove known selection/unselected color classes
+    one?.classList.remove('bg-blue-600','bg-blue-700','bg-gray-600','bg-gray-700');
+    two?.classList.remove('bg-blue-600','bg-blue-700','bg-gray-600','bg-gray-700');
+    three?.classList.remove('bg-blue-600','bg-blue-700','bg-gray-600','bg-gray-700');
+
+    // apply a consistent class scheme: selected => bg-blue-600, unselected => bg-gray-700
+    const setBtn = (el, sel) => {
+      if(!el) return;
+      if(sel) el.classList.add('bg-blue-600');
+      else el.classList.add('bg-gray-700');
+    };
+
+    setBtn(one, players === 1);
+    setBtn(two, players === 2);
+    setBtn(three, players === 3);
+
+    // show/hide columns and labels according to players
+    if(players === 1){
+      type2?.classList.add('hidden');
+      $('type3')?.classList.add('hidden');
+      $('player1Label')?.classList.add('hidden');
+      $('player2Label')?.classList.add('hidden');
+      $('player3Label')?.classList.add('hidden');
+      divider?.classList.add('hidden');
+      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
+    }else if(players === 2){
+      type2?.classList.remove('hidden');
+      $('type3')?.classList.add('hidden');
+      $('player1Label')?.classList.remove('hidden');
+      $('player2Label')?.classList.remove('hidden');
+      $('player3Label')?.classList.add('hidden');
+      divider?.classList.remove('hidden');
+      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
+    }else{ // 3
+      type2?.classList.remove('hidden');
+      $('type3')?.classList.remove('hidden');
+      $('player1Label')?.classList.remove('hidden');
+      $('player2Label')?.classList.remove('hidden');
+      $('player3Label')?.classList.remove('hidden');
+      divider?.classList.remove('hidden');
+      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.remove('hidden');
     }
+
+    // set dataset / aria state so selection detection is robust (don't rely only on Tailwind classes)
+    [one, two, three].forEach((el, i) => {
+      if(!el) return;
+      if(players === i+1){ el.dataset.selected = '1'; el.setAttribute('aria-pressed', 'true'); }
+      else { delete el.dataset.selected; el.setAttribute('aria-pressed', 'false'); }
+    });
+
     // reset result whenever mode changes
     resetResult();
   }
 
   $('onePlayer').addEventListener('click', ()=> setPlayersMode(1));
   $('twoPlayer').addEventListener('click', ()=> setPlayersMode(2));
+  $('threePlayer').addEventListener('click', ()=> setPlayersMode(3));
 
   // carrier toggle behaviour
   $('allowCarrier').addEventListener('click', ()=>{
     const el = $('allowCarrier');
-    if(el.classList.contains('bg-blue-600')){
-      el.classList.remove('bg-blue-600'); el.classList.add('bg-gray-700'); el.textContent='Aircraft-Carrier disabled';
+    if(el?.classList.contains('bg-blue-600')){
+      el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700'); el.textContent='Aircraft-Carrier disabled';
     }else{
-      el.classList.remove('bg-gray-700'); el.classList.add('bg-blue-600'); el.textContent='Aircraft-Carrier enabled';
+      el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600'); el.textContent='Aircraft-Carrier enabled';
     }
     // resetting result when carrier preference changes
     resetResult();
@@ -512,7 +640,7 @@ function setup(){
   // initial state: set players mode to 2 (keeps classes consistent)
   setPlayersMode(2);
   // set carrier button default to disabled state
-  const carrier = $('allowCarrier'); if(carrier){ carrier.classList.remove('bg-blue-600'); carrier.classList.add('bg-gray-700'); carrier.textContent='Aircraft-Carrier disabled'; }
+  const carrier = $('allowCarrier'); if(carrier){ carrier?.classList.remove('bg-blue-600'); carrier?.classList.add('bg-gray-700'); carrier.textContent='Aircraft-Carrier disabled'; }
   // setup flag image fallback handlers
   setupFlagImageHandlers();
   // setup category images handlers
