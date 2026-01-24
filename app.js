@@ -1,6 +1,3 @@
-// Minimal logic for WoWSL Randomizer
-const DATA_PATH = 'data/nations.json';
-
 const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByTier: {
     "Ⅰ": ["Destroyer","Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
@@ -162,21 +159,7 @@ const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe
   }
 };
 
-// Embedded nations data — kept directly in app.js so the page works when opened
-// via file:// without CORS issues.
-// Nations list. Optional field `categoryByTier` lets you specify which ship
-// categories are available for a given tier for that nation. Example:
-//   categoryByTier: {
-//     "Ⅰ": "Destroyer",
-//     "Ⅴ": ["Cruiser","Battleship"],   // for tier Ⅴ offer either Cruiser or Battleship
-//     "Ⅷ": ["Battleship","Battleship"], // for tier Ⅷ prefer Battleship (weighting via duplicates)
-//     "⭐": "Destroyer"                  // mapping for legendary tier
-//   }
-// The values may be a string (single category), or an array (used as a choice pool).
-// When `players===2` and the mapping resolves to two explicit values (array length 2),
-// they are used as the two player categories (subject to carrier rules). Otherwise the
-// array is treated as a pool to pick from.
-const NATIONS = [
+const nations = [
   nation_usa,
   nation_japan,
   nation_ussr,
@@ -192,21 +175,8 @@ const NATIONS = [
   nation_pan_asia,
 ];
 
-let nations = [];
 
 function $(id){ return document.getElementById(id); }
-
-async function loadData(){
-  // Use embedded data for reliability when opened locally (file://)
-  nations = Array.isArray(NATIONS) ? NATIONS.slice() : [];
-  if(!Array.isArray(nations) || nations.length === 0){
-    const btn = $('randomBtn'); if(btn) btn.disabled = true;
-    const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: 0';
-  }else{
-    const status = $('dataStatus'); if(status) status.textContent = 'Nations chargées: ' + nations.length;
-    const btn = $('randomBtn'); if(btn) btn.disabled = false;
-  }
-}
 
 function randomInt(max){ return Math.floor(Math.random()*max); }
 
@@ -479,7 +449,6 @@ function resetResult(){
 }
 
 async function onRandom(){
-  if(nations.length===0) await loadData();
   const allowCarrier = $('allowCarrier').classList.contains('bg-blue-600');
   const players = $('twoPlayer').classList.contains('bg-blue-600') ? 2 : 1;
   // quick guard: if still no nations, show an error and abort
