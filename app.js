@@ -1,7 +1,7 @@
 // Minimal logic for WoWSL Randomizer
 const DATA_PATH = 'data/nations.json';
 
-const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByRank: {
+const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByTier: {
     "1": ["Destroyer","Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -13,7 +13,7 @@ const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","ca
     "*": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const nation_japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true, categoryByRank: {
+const nation_japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -25,7 +25,7 @@ const nation_japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png
     "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
   
-const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByRank: {
+const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -37,7 +37,7 @@ const nation_ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png
     "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const nation_germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false, categoryByRank: {
+const nation_germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -49,7 +49,7 @@ const nation_germany = {"id":"germany","name":"Germany","flag":"assets/flags/ger
     "*": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByRank: {
+const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -62,7 +62,7 @@ const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carrier
   }};
 
 
-const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByRank: {
+const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship"],
@@ -74,7 +74,7 @@ const nation_france = {"id":"france","name":"France","flag":"assets/flags/france
     "*": ["Destroyer","Cruiser","Battleship"]
   }};
 
-const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false, categoryByRank: {
+const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser","Battleship"],
@@ -87,7 +87,7 @@ const nation_italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png
   }};
 
 const nation_spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,
-  categoryByRank: {
+  categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Cruiser"],
     "3": ["Cruiser"],
@@ -100,7 +100,7 @@ const nation_spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png
   }
 };
 
-const nation_netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false, categoryByRank: {
+const nation_netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Cruiser"],
     "3": ["Cruiser"],
@@ -112,7 +112,7 @@ const nation_netherlands = {"id":"netherlands","name":"Netherlands","flag":"asse
     "*": ["Cruiser"]
   }};
 
-const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByRank: {
+const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByTier: {
     "1": [],
     "2": [],
     "3": [],
@@ -124,7 +124,7 @@ const nation_pan_america = {"id":"pan-america","name":"Pan-America","flag":"asse
     "*": []
   }};
 
-const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByRank: {
+const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByTier: {
     "1": [],
     "2": ["Destroyer"],
     "3": [],
@@ -136,7 +136,7 @@ const nation_commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"a
     "*": ["Cruiser"]
   }};
 
-const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false, categoryByRank: {
+const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false, categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer","Cruiser"],
     "3": ["Destroyer","Cruiser"],
@@ -149,7 +149,7 @@ const nation_pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/
   }};
 
 const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,
-  categoryByRank: {
+  categoryByTier: {
     "1": ["Cruiser"],
     "2": ["Destroyer"],
     "3": ["Destroyer"],
@@ -164,13 +164,13 @@ const nation_europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe
 
 // Embedded nations data — kept directly in app.js so the page works when opened
 // via file:// without CORS issues.
-// Nations list. Optional field `categoryByRank` lets you specify which ship
-// categories are available for a given rank for that nation. Example:
-//   categoryByRank: {
+// Nations list. Optional field `categoryByTier` lets you specify which ship
+// categories are available for a given tier for that nation. Example:
+//   categoryByTier: {
 //     "1": "Destroyer",
-//     "5": ["Cruiser","Battleship"],   // for rank 5 offer either Cruiser or Battleship
-//     "8": ["Battleship","Battleship"], // for rank 8 prefer Battleship (weighting via duplicates)
-//     "*": "Destroyer"                  // mapping for legendary rank
+//     "5": ["Cruiser","Battleship"],   // for tier 5 offer either Cruiser or Battleship
+//     "8": ["Battleship","Battleship"], // for tier 8 prefer Battleship (weighting via duplicates)
+//     "*": "Destroyer"                  // mapping for legendary tier
 //   }
 // The values may be a string (single category), or an array (used as a choice pool).
 // When `players===2` and the mapping resolves to two explicit values (array length 2),
@@ -212,10 +212,10 @@ function randomInt(max){ return Math.floor(Math.random()*max); }
 
 function pick(arr){ return arr[randomInt(arr.length)]; }
 
-// Weighted rank selection: very rare -> common
-function randomRank(){
+// Weighted tier selection: very rare -> common
+function randomTier(){
   // weights tuned to prefer V-VIII and legendary
-  // ranks: 1..8 and '*'
+  // tiers: 1..8 and '*'
   const weighted = [
     1, // very rare (1)
     2,2, // very rare (2)
@@ -256,15 +256,15 @@ function suggestCategory(nation, allowCarrier, players){
   const categories = [...base];
   if(allowCarrier && nation.carriers) categories.push('Aircraft Carrier');
 
-  // If the nation defines explicit categories per rank, use that mapping.
+  // If the nation defines explicit categories per tier, use that mapping.
   // The mapping keys are strings: '1'..'8' or '*'. Mapping values may be:
   //  - a string (single category)
   //  - an array: either [cat1, cat2] to explicitly assign both players,
   //    or an array used as a pool of choices.
-  function applyMappingForRank(rank){
-    if(!nation || !nation.categoryByRank) return null;
-    const key = String(rank);
-    const m = nation.categoryByRank[key];
+  function applyMappingForTier(tier){
+    if(!nation || !nation.categoryByTier) return null;
+    const key = String(tier);
+    const m = nation.categoryByTier[key];
     if(m === undefined) return null;
     // helper to check carrier availability
     const allowed = (cat) => !(cat === 'Aircraft Carrier' && (!allowCarrier || !nation.carriers));
@@ -312,14 +312,14 @@ function suggestCategory(nation, allowCarrier, players){
   }
 
   // try mapping first; if it yields a valid category (or categories), use it
-  // Note: rank will be provided by caller as number or '*'
+  // Note: tier will be provided by caller as number or '*'
   // The caller of suggestCategory passes only nation, allowCarrier and players —
-  // to use mapping that depends on rank we need the rank value. We'll support
+  // to use mapping that depends on tier we need the tier value. We'll support
   // mapping only when caller passes a special temporary property on the nation
-  // object called `_selectedRank` (set by onRandom) to keep calling convention simple.
-  const rankForMapping = nation && nation._selectedRank !== undefined ? nation._selectedRank : null;
-  if(rankForMapping !== null){
-    const mapped = applyMappingForRank(rankForMapping);
+  // object called `_selectedTier` (set by onRandom) to keep calling convention simple.
+  const tierForMapping = nation && nation._selectedTier !== undefined ? nation._selectedTier : null;
+    if(tierForMapping !== null){
+    const mapped = applyMappingForTier(tierForMapping);
     if(mapped) return Array.isArray(mapped) ? mapped.map(translateCategory) : translateCategory(mapped);
   }
 
@@ -352,9 +352,9 @@ function suggestCategory(nation, allowCarrier, players){
   return translateCategory(sel);
 }
 
-function applyResult({nation, rank, category}){
+function applyResult({nation, tier, category}){
   $('nationName').textContent = nation.name || nation.id;
-  $('rank').textContent = rank;
+  $('tier').textContent = tier;
   const divider = $('typeDivider');
   const catImg = $('categoryImg');
   const catImg2 = $('categoryImg2');
@@ -455,7 +455,7 @@ function setupCategoryImageHandlers(){
 
 function resetResult(){
   $('nationName').textContent = '—';
-  $('rank').textContent = '—';
+  $('tier').textContent = '—';
   $('category').textContent = '—';
   const cat2 = $('category2');
   if(cat2){
@@ -489,14 +489,15 @@ async function onRandom(){
   }
   const idx = randomInt(nations.length);
   const nation = nations[idx];
-  const rank = randomRank();
-  // expose the chosen rank temporarily on the nation object so suggestCategory
-  // can consult per-rank mappings defined in the nation (categoryByRank)
-  nation._selectedRank = rank;
+  const tier = randomTier();
+  // expose the chosen tier temporarily on the nation object so suggestCategory
+  // can consult per-tier mappings defined in the nation (categoryByTier)
+  nation._selectedTier = tier;
   const category = suggestCategory(nation, allowCarrier, players);
   // cleanup temporary field
-  delete nation._selectedRank;
-  applyResult({nation, rank, category});
+  delete nation._selectedTier;
+  // pass chosen tier into applyResult using the new param name
+  applyResult({nation, tier, category});
 }
 
 function setup(){
