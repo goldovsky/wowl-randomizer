@@ -200,27 +200,6 @@ function randomTier(){
   return pick(weighted);
 }
 
-function translateCategory(cat){
-  const map = {
-    'Destroyer': 'Destroyer',
-    'Cruiser': 'Cruiser',
-    'Battleship': 'Battleship',
-    'Aircraft Carrier': 'Aircraft Carrier'
-  };
-  return map[cat] || cat;
-}
-
-// map localized labels back to English filenames used in assets/categories
-function assetCategoryName(displayed){
-  const rev = {
-    'Destroyer': 'Destroyer',
-    'Cruiser': 'Cruiser',
-    'Battleship': 'Battleship',
-    'Aircraft Carrier': 'Aircraft Carrier'
-  };
-  return rev[displayed] || displayed;
-}
-
 function suggestCategory(nation, allowCarrier, players){
   const base = ['Destroyer','Cruiser','Battleship'];
   const categories = [...base];
@@ -290,7 +269,7 @@ function suggestCategory(nation, allowCarrier, players){
   const tierForMapping = nation && nation._selectedTier !== undefined ? nation._selectedTier : null;
     if(tierForMapping !== null){
     const mapped = applyMappingForTier(tierForMapping);
-    if(mapped) return Array.isArray(mapped) ? mapped.map(translateCategory) : translateCategory(mapped);
+    if(mapped) return mapped;
   }
 
   // create a weighted pool favoring larger ships slightly
@@ -315,11 +294,11 @@ function suggestCategory(nation, allowCarrier, players){
       second = pick(pool);
       // if second is carrier, it's allowed (only one carrier)
     }
-    return [translateCategory(first), translateCategory(second)];
+    return [first, second];
   }
 
   const sel = pick(pool);
-  return translateCategory(sel);
+  return sel;
 }
 
 function applyResult({nation, tier, category}){
@@ -329,14 +308,13 @@ function applyResult({nation, tier, category}){
   const catImg = $('categoryImg');
   const catImg2 = $('categoryImg2');
 
-  function setCatImg(el, catDisplayed){
-    if(!el) return;
-    const base = assetCategoryName(catDisplayed);
-    const path = 'assets/categories/' + encodeURIComponent(base) + '.png';
-    el.src = path;
-    el.classList.remove('hidden');
-    if(el.dataset) el.dataset.attemptedFallback = '';
-  }
+    function setCatImg(el, catDisplayed){
+      if(!el) return;
+      const path = 'assets/categories/' + encodeURIComponent(catDisplayed) + '.png';
+      el.src = path;
+      el.classList.remove('hidden');
+      if(el.dataset) el.dataset.attemptedFallback = '';
+    }
 
   if(Array.isArray(category)){
     $('category').textContent = category[0];
