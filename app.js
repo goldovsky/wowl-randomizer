@@ -1,3 +1,8 @@
+// ============================================================
+//                          DATA
+//  Static definitions: nations, flags and category mappings
+// ============================================================
+
 const nation_usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByTier: {
     "Ⅰ": ["Destroyer","Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
@@ -57,7 +62,6 @@ const nation_uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carrier
     "Ⅷ": ["Destroyer","Cruiser","Battleship"],
     "⭐": ["Destroyer","Cruiser","Battleship"]
   }};
-
 
 const nation_france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByTier: {
     "Ⅰ": ["Cruiser"],
@@ -175,6 +179,10 @@ const nations = [
   nation_pan_asia,
 ];
 
+// ------------------------------------------------------------
+//                          UTILITIES
+//  Small helper functions used across the app
+// ------------------------------------------------------------
 
 function $(id){ return document.getElementById(id); }
 
@@ -199,6 +207,11 @@ function randomTier(){
   ];
   return pick(weighted);
 }
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                       APPLICATION CORE
+//  Main app flow, category suggestion logic and UI glue
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function suggestCategory(nation, allowCarrier, players){
   const base = ['Destroyer','Cruiser','Battleship'];
