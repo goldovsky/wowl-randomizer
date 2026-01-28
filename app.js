@@ -179,6 +179,13 @@ const nations = [
   pan_asia,
 ];
 
+// annotate team membership for Axis vs Allies classification
+// simple grouping: Axis = {germany, italy, japan}, Allies = others
+nations.forEach(n => {
+  if(['germany','italy','japan'].includes(n.id)) n.team = 'axis';
+  else n.team = 'allies';
+});
+
 // ------------------------------------------------------------
 //                          UTILITIES
 //  Small helper functions used across the app
@@ -351,8 +358,14 @@ function suggestCategory(nation, allowCarrier, players){
 }
 
 function applyResult({nation, tier, category, players=1}){
-  $('nationName').textContent = nation.name || nation.id;
+  // set tier (now displayed on left) and per-player nation names
+  // set tier label and result positions
+  const tierLabelEl = $('tierLabel'); if(tierLabelEl) tierLabelEl.textContent = 'Tier';
   $('tier').textContent = tier;
+  const _n1 = $('nationName1'); if(_n1) _n1.textContent = nation.name || nation.id;
+  // ensure other nation name slots are present when used
+  const _n2 = $('nationName2'); if(_n2) _n2.textContent = '—';
+  const _n3 = $('nationName3'); if(_n3) _n3.textContent = '—';
   const divider = $('typeDivider');
   const divider2 = $('typeDivider2');
   const catImg = $('categoryImg');
@@ -382,24 +395,20 @@ function applyResult({nation, tier, category, players=1}){
       $('category2').textContent = formatLabel(category[1]) || '—';
       $('category2')?.classList.remove('hidden');
       $('type2')?.classList.remove('hidden');
-      if(divider) divider?.classList.remove('hidden');
       if(catImg2) setCatImg(catImg2, category[1]);
     }else{
       $('category2')?.classList.add('hidden');
       $('type2')?.classList.add('hidden');
-      if(divider) divider?.classList.add('hidden');
       if(catImg2){ catImg2?.classList.add('hidden'); catImg2.src = ''; }
     }
     if(len >= 3){
       $('category3').textContent = formatLabel(category[2]) || '—';
       $('category3')?.classList.remove('hidden');
       $('type3')?.classList.remove('hidden');
-      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.remove('hidden');
       if(catImg3) setCatImg(catImg3, category[2]);
     }else{
       $('category3')?.classList.add('hidden');
       $('type3')?.classList.add('hidden');
-      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
       if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
     }
     // set first category image
@@ -418,17 +427,16 @@ function applyResult({nation, tier, category, players=1}){
     if(divider2) divider2?.classList.add('hidden');
     if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
   }
-  const img = $('flagImg');
-  if(nation.flag) img.src = nation.flag;
-  // show flag image when a result is present
-  const flag = $('flagImg'); if(flag) flag?.classList.remove('hidden');
+  // set flag for player 1; other players will be set when they exist
+  const img1 = $('flagImg1'); if(img1 && nation.flag) { img1.src = nation.flag; img1.classList.remove('hidden'); img1.hidden = false; }
 }
 
 // Ensure flag image falls back to placeholder if the file is missing or fails to load
 function setupFlagImageHandlers(){
-  const img = $('flagImg');
-  if(!img) return;
-  img.onerror = function(){
+  // flag handlers: update for per-player flag elements (flagImg1/2/3)
+  const imgs = [ $('flagImg1'), $('flagImg2'), $('flagImg3') ].filter(Boolean);
+  imgs.forEach(img => {
+    img.onerror = function(){
     // if we haven't tried the alternate extension yet, attempt it (png <-> svg)
     try{
       const attempted = img.dataset.attemptedFallback;
@@ -446,13 +454,15 @@ function setupFlagImageHandlers(){
         }
       }
     }catch(e){ /* ignore and fallback */ }
-    console.warn('Flag image failed to load, falling back to placeholder:', img.src);
-    img.src = 'assets/flags/placeholder.svg';
-  };
-  img.onload = function(){
-    // keep subtle background look but ensure image is visible
-    img?.classList.add('object-cover');
-  };
+      console.warn('Flag image failed to load, falling back to placeholder:', img.src);
+      img.src = 'assets/flags/placeholder.svg';
+    };
+    img.onload = function(){
+      // keep subtle background look but ensure image is visible
+      img?.classList.add('object-cover');
+      img?.classList.remove('hidden');
+    };
+  });
 }
 
 function setupCategoryImageHandlers(){
@@ -486,40 +496,23 @@ function setupCategoryImageHandlers(){
 }
 
 function resetResult(){
-  $('nationName').textContent = '—';
+  const _r1 = $('nationName1'); if(_r1) _r1.textContent = '—';
+  const _r2 = $('nationName2'); if(_r2) _r2.textContent = '—';
+  const _r3 = $('nationName3'); if(_r3) _r3.textContent = '—';
+  // when no result: hide flags, categories and tier — only show the single dash per player
   $('tier').textContent = '—';
-  $('category').textContent = '—';
+  $('category').textContent = '';
   
-  const cat2 = $('category2');
-  if(cat2){
-    cat2.textContent = '—';
-    // keep category2 visible only if the second slot container is visible
-    const t2 = $('type2');
-    if(t2 && !t2?.classList.contains('hidden')){
-      cat2?.classList.remove('hidden');
-    }else{
-      cat2?.classList.add('hidden');
-    }
-  }
+  // hide secondary category displays when no result
+  const cat2 = $('category2'); if(cat2){ cat2.textContent = ''; cat2?.classList.add('hidden'); }
+  const cat3 = $('category3'); if(cat3){ cat3.textContent = ''; cat3?.classList.add('hidden'); }
 
-  const cat3 = $('category3');
-  if(cat3){
-    cat3.textContent = '—';
-    // keep category3 visible only if the second slot container is visible
-    const t3 = $('type3');
-    if(t3 && !t3?.classList.contains('hidden')){
-      cat3?.classList.remove('hidden');
-    }else{
-      cat3?.classList.add('hidden');
-    }
-  }
-
-  const img = $('flagImg');
-  img.src = 'assets/flags/placeholder.svg';
-  const divider = $('typeDivider');
-  if(divider) divider?.classList.add('hidden');
-  const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
-  // hide flag image on reset
+  // reset per-player flags: hide flags (no placeholder) when no result
+  const img1 = $('flagImg1'); if(img1){ img1.src = 'assets/flags/placeholder.svg'; img1.classList.add('hidden'); img1.setAttribute('hidden',''); }
+  const img2 = $('flagImg2'); if(img2){ img2.src = 'assets/flags/placeholder.svg'; img2.classList.add('hidden'); img2.setAttribute('hidden',''); }
+  const img3 = $('flagImg3'); if(img3){ img3.src = 'assets/flags/placeholder.svg'; img3.classList.add('hidden'); img3.setAttribute('hidden',''); }
+  // separators removed: no-op (kept for compatibility)
+  // hide legacy flag image on reset (no longer used)
   $('flagImg')?.classList.add('hidden');
   const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg?.classList.add('hidden'); }
   const cimg2 = $('categoryImg2'); if(cimg2){ cimg2.src = ''; cimg2?.classList.add('hidden'); }
@@ -543,18 +536,55 @@ async function onRandom(){
     else if(isBlue(twoEl)) players = 2;
   }
 
+  const useSameTeam = $('axisAlliesToggle')?.classList.contains('bg-blue-600');
   const idx = randomInt(nations.length);
   const nation = nations[idx];
+  // If Axis/Allies option is enabled, pick player 1's nation at random then
+  // constrain other players to the same team. Nations are annotated in
+  // the `team` property which we'll define below. If not enabled, fall back
+  // to previous behaviour (random independent nations).
   const tier = randomTier();
   // expose the chosen tier temporarily on the nation object so suggestCategory
   // can consult per-tier mappings defined in the nation (categoryByTier)
-  nation._selectedTier = tier;
-  const category = suggestCategory(nation, allowCarrier, players);
+  // We'll compute nations selected for each player depending on Axis/Allies option.
+  // nationsSelected[0] is the already chosen `nation` for player 1.
+  const nationsSelected = [nation];
+  if(useSameTeam && players > 1){
+    const team = nation.team || 'allies';
+    const pool = nations.filter(n => (n.team || 'allies') === team);
+    for(let i=1;i<players;i++) nationsSelected.push(pick(pool));
+  }else{
+    // independent nations per player (random for each), allow repeats
+    for(let i=1;i<players;i++) nationsSelected.push(nations[randomInt(nations.length)]);
+  }
+
+  // compute categories per selected nation. Use per-player context (players=1)
+  // so mappings don't try to emit multi-slot arrays for a single nation.
+  const categoriesPerPlayer = [];
+  for(const n of nationsSelected){
+    // expose chosen tier temporarily on each nation so mapping can use it
+    n._selectedTier = tier;
+    categoriesPerPlayer.push(suggestCategory(n, allowCarrier, 1));
+  }
   // cleanup temporary field
-  delete nation._selectedTier;
-  // pass chosen tier into applyResult using the new param name
-  // forward players so applyResult can adapt label formatting
-  applyResult({nation, tier, category, players});
+  for(const n of nationsSelected) delete n._selectedTier;
+
+  // apply result using player1 as primary nation and pass categories array
+  const categoryToShow = players > 1 ? categoriesPerPlayer : categoriesPerPlayer[0];
+  applyResult({nation: nationsSelected[0], tier, category: categoryToShow, players});
+
+  // set each player's nation name and flag
+  for(let i=0;i<nationsSelected.length;i++){
+    const slot = i+1;
+    const nameEl = $('nationName' + slot);
+    const flagEl = $('flagImg' + slot);
+    const n = nationsSelected[i];
+    if(nameEl) nameEl.textContent = n.name || n.id;
+    if(flagEl){
+      if(n.flag){ flagEl.src = n.flag; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
+      else { flagEl.src = 'assets/flags/placeholder.svg'; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
+    }
+  }
 }
 
 function setup(){
@@ -667,6 +697,28 @@ function setup(){
         el.setAttribute('aria-pressed','true');
       }
       // resetting result when carrier preference changes
+      resetResult();
+    });
+  }
+
+  // axis/allies toggle: active by default
+  const axisEl = $('axisAlliesToggle');
+  if(axisEl){
+    // ensure default active appearance
+    axisEl.classList.remove('bg-gray-700');
+    axisEl.classList.add('bg-blue-600');
+    axisEl.setAttribute('aria-pressed', 'true');
+
+    axisEl.addEventListener('click', ()=>{
+      const el = axisEl;
+      if(el?.classList.contains('bg-blue-600')){
+        el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700');
+        el.setAttribute('aria-pressed','false');
+      }else{
+        el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600');
+        el.setAttribute('aria-pressed','true');
+      }
+      // reset result when option changes
       resetResult();
     });
   }
