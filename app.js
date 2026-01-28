@@ -395,24 +395,20 @@ function applyResult({nation, tier, category, players=1}){
       $('category2').textContent = formatLabel(category[1]) || '—';
       $('category2')?.classList.remove('hidden');
       $('type2')?.classList.remove('hidden');
-      if(divider) divider?.classList.remove('hidden');
       if(catImg2) setCatImg(catImg2, category[1]);
     }else{
       $('category2')?.classList.add('hidden');
       $('type2')?.classList.add('hidden');
-      if(divider) divider?.classList.add('hidden');
       if(catImg2){ catImg2?.classList.add('hidden'); catImg2.src = ''; }
     }
     if(len >= 3){
       $('category3').textContent = formatLabel(category[2]) || '—';
       $('category3')?.classList.remove('hidden');
       $('type3')?.classList.remove('hidden');
-      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.remove('hidden');
       if(catImg3) setCatImg(catImg3, category[2]);
     }else{
       $('category3')?.classList.add('hidden');
       $('type3')?.classList.add('hidden');
-      const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
       if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
     }
     // set first category image
@@ -432,7 +428,7 @@ function applyResult({nation, tier, category, players=1}){
     if(catImg3){ catImg3?.classList.add('hidden'); catImg3.src = ''; }
   }
   // set flag for player 1; other players will be set when they exist
-  const img1 = $('flagImg1'); if(img1 && nation.flag) { img1.src = nation.flag; img1.classList.remove('hidden'); }
+  const img1 = $('flagImg1'); if(img1 && nation.flag) { img1.src = nation.flag; img1.classList.remove('hidden'); img1.hidden = false; }
 }
 
 // Ensure flag image falls back to placeholder if the file is missing or fails to load
@@ -503,40 +499,19 @@ function resetResult(){
   const _r1 = $('nationName1'); if(_r1) _r1.textContent = '—';
   const _r2 = $('nationName2'); if(_r2) _r2.textContent = '—';
   const _r3 = $('nationName3'); if(_r3) _r3.textContent = '—';
+  // when no result: hide flags, categories and tier — only show the single dash per player
   $('tier').textContent = '—';
-  $('category').textContent = '—';
+  $('category').textContent = '';
   
-  const cat2 = $('category2');
-  if(cat2){
-    cat2.textContent = '—';
-    // keep category2 visible only if the second slot container is visible
-    const t2 = $('type2');
-    if(t2 && !t2?.classList.contains('hidden')){
-      cat2?.classList.remove('hidden');
-    }else{
-      cat2?.classList.add('hidden');
-    }
-  }
+  // hide secondary category displays when no result
+  const cat2 = $('category2'); if(cat2){ cat2.textContent = ''; cat2?.classList.add('hidden'); }
+  const cat3 = $('category3'); if(cat3){ cat3.textContent = ''; cat3?.classList.add('hidden'); }
 
-  const cat3 = $('category3');
-  if(cat3){
-    cat3.textContent = '—';
-    // keep category3 visible only if the second slot container is visible
-    const t3 = $('type3');
-    if(t3 && !t3?.classList.contains('hidden')){
-      cat3?.classList.remove('hidden');
-    }else{
-      cat3?.classList.add('hidden');
-    }
-  }
-
-  // reset per-player flags
-  const img1 = $('flagImg1'); if(img1){ img1.src = 'assets/flags/placeholder.svg'; img1?.classList.add('hidden'); }
-  const img2 = $('flagImg2'); if(img2){ img2.src = 'assets/flags/placeholder.svg'; img2?.classList.add('hidden'); }
-  const img3 = $('flagImg3'); if(img3){ img3.src = 'assets/flags/placeholder.svg'; img3?.classList.add('hidden'); }
-  const divider = $('typeDivider');
-  if(divider) divider?.classList.add('hidden');
-  const divider2 = $('typeDivider2'); if(divider2) divider2?.classList.add('hidden');
+  // reset per-player flags: hide flags (no placeholder) when no result
+  const img1 = $('flagImg1'); if(img1){ img1.src = 'assets/flags/placeholder.svg'; img1.classList.add('hidden'); img1.setAttribute('hidden',''); }
+  const img2 = $('flagImg2'); if(img2){ img2.src = 'assets/flags/placeholder.svg'; img2.classList.add('hidden'); img2.setAttribute('hidden',''); }
+  const img3 = $('flagImg3'); if(img3){ img3.src = 'assets/flags/placeholder.svg'; img3.classList.add('hidden'); img3.setAttribute('hidden',''); }
+  // separators removed: no-op (kept for compatibility)
   // hide legacy flag image on reset (no longer used)
   $('flagImg')?.classList.add('hidden');
   const cimg = $('categoryImg'); if(cimg){ cimg.src = ''; cimg?.classList.add('hidden'); }
@@ -605,7 +580,10 @@ async function onRandom(){
     const flagEl = $('flagImg' + slot);
     const n = nationsSelected[i];
     if(nameEl) nameEl.textContent = n.name || n.id;
-    if(flagEl && n.flag){ flagEl.src = n.flag; flagEl.classList.remove('hidden'); }
+    if(flagEl){
+      if(n.flag){ flagEl.src = n.flag; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
+      else { flagEl.src = 'assets/flags/placeholder.svg'; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
+    }
   }
 }
 
