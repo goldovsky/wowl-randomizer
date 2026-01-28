@@ -27,40 +27,43 @@
       <section id="result" class="w-full max-w-md mt-4 rounded-xl overflow-hidden shadow-lg bg-black">
         <div class="p-4">
           <div class="flex flex-col gap-4">
-            <div class="flex items-end justify-between">
-              <div class="flex items-center gap-3">
-                <img id="flagImg" src="assets/flags/placeholder.svg" alt="drapeau" class="h-10 w-14 rounded object-cover hidden">
-                <div class="flex flex-col">
-                  <div id="nationName" class="text-xl font-bold">—</div>
-                  <div class="text-sm text-gray-300">Nationality</div>
-                </div>
-              </div>
-              <div class="flex flex-col items-end">
+              <div class="flex items-center justify-between">
+                <div id="tierLabel" class="text-4xl font-extrabold text-gray-400">Tier</div>
                 <div id="tier" class="text-4xl font-extrabold">—</div>
-                <div class="text-sm text-gray-300">Tier</div>
               </div>
-            </div>
 
           <hr class="border-gray-700">
 
           <div>
             <div id="typeSection" class="mt-2 flex gap-2">
-              <div id="type1" class="flex-1 bg-gray-900/40 p-3 rounded text-center">
-                <img id="categoryImg" src="" alt="icone catégorie" class="mx-auto h-12 w-12 object-contain hidden">
-                <div id="category" class="text-lg font-semibold">—</div>
-                <div id="player1Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player I</div>
+               <div id="type1" class="flex-1 bg-gray-900/40 p-3 rounded text-center">
+                <div class="mb-2">
+                  <img id="flagImg1" src="assets/flags/placeholder.svg" alt="drapeau 1" class="mx-auto h-8 w-12 rounded object-cover hidden">
+                  <div id="nationName1" class="text-sm font-semibold mt-1">—</div>
+                </div>
+                 <img id="categoryImg" src="" alt="icone catégorie" class="mx-auto h-12 w-12 object-contain hidden">
+                 <div id="category" class="text-lg font-semibold">—</div>
+                 <div id="player1Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player I</div>
               </div>
               <div id="typeDivider" class="w-px bg-gray-700 hidden"></div>
-              <div id="type2" class="flex-1 bg-gray-900/40 p-3 rounded text-center hidden">
-                <img id="categoryImg2" src="" alt="icone catégorie 2" class="mx-auto h-12 w-12 object-contain hidden">
-                <div id="category2" class="text-lg font-semibold">—</div>
-                <div id="player2Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player II</div>
+               <div id="type2" class="flex-1 bg-gray-900/40 p-3 rounded text-center hidden">
+                  <div class="mb-2">
+                    <img id="flagImg2" src="assets/flags/placeholder.svg" alt="drapeau 2" class="mx-auto h-8 w-12 rounded object-cover hidden">
+                    <div id="nationName2" class="text-sm font-semibold mt-1">—</div>
+                  </div>
+                 <img id="categoryImg2" src="" alt="icone catégorie 2" class="mx-auto h-12 w-12 object-contain hidden">
+                 <div id="category2" class="text-lg font-semibold">—</div>
+                 <div id="player2Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player II</div>
               </div>
               <div id="typeDivider2" class="w-px bg-gray-700 hidden"></div>
-              <div id="type3" class="flex-1 bg-gray-900/40 p-3 rounded text-center hidden">
-                <img id="categoryImg3" src="" alt="icone catégorie 3" class="mx-auto h-12 w-12 object-contain hidden">
-                <div id="category3" class="text-lg font-semibold">—</div>
-                <div id="player3Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player III</div>
+               <div id="type3" class="flex-1 bg-gray-900/40 p-3 rounded text-center hidden">
+                  <div class="mb-2">
+                    <img id="flagImg3" src="assets/flags/placeholder.svg" alt="drapeau 3" class="mx-auto h-8 w-12 rounded object-cover hidden">
+                    <div id="nationName3" class="text-sm font-semibold mt-1">—</div>
+                  </div>
+                 <img id="categoryImg3" src="" alt="icone catégorie 3" class="mx-auto h-12 w-12 object-contain hidden">
+                 <div id="category3" class="text-lg font-semibold">—</div>
+                 <div id="player3Label" class="text-xs text-gray-400 mt-2 text-center hidden">Player III</div>
               </div>
             </div>
           </div>
@@ -96,9 +99,14 @@
             <button id="submenuToggle" class="h-10 flex items-center justify-center rounded bg-gray-700" aria-expanded="false" aria-controls="submenu" aria-label="Options" style="flex:4">Options</button>
             <div class="h-px bg-gray-700" aria-hidden="true" style="flex:1"></div>
           </div>
-          <div id="submenu" class="my-2">
+            <div id="submenu" class="my-2">
             <div>
               <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700 mb-2" aria-pressed="false">Aircraft-Carrier disabled</button>
+            </div>
+            <div>
+              <button id="axisAlliesToggle" class="w-full px-3 py-2 rounded bg-blue-600 mb-2" aria-pressed="true">
+                <img src="assets/lock.png" alt="lock" class="inline-icon" style="height:14px;width:14px;display:inline-block;vertical-align:middle;margin-right:8px">Axis/Allies
+              </button>
             </div>
           </div>
         </div>
