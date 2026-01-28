@@ -587,7 +587,8 @@ function setup(){
     if(players === 1){
       type2?.classList.add('hidden');
       $('type3')?.classList.add('hidden');
-      $('player1Label')?.classList.add('hidden');
+      // show Player I label even in single-player mode
+      $('player1Label')?.classList.remove('hidden');
       $('player2Label')?.classList.add('hidden');
       $('player3Label')?.classList.add('hidden');
       divider?.classList.add('hidden');
