@@ -3,7 +3,7 @@
 //  Static definitions: nations, flags and category mappings
 // ============================================================
 
-const usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true, categoryByTier: {
+const usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers":true,"team":"allies", categoryByTier: {
     "Ⅰ": ["Destroyer","Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -15,7 +15,7 @@ const usa = {"id":"usa","name":"U.S.A.","flag":"assets/flags/usa.png","carriers"
     "⭐": ["Destroyer", "Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true, categoryByTier: {
+const japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carriers":true,"team":"axis", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -27,7 +27,7 @@ const japan = {"id":"japan","name":"Japan","flag":"assets/flags/japan.png","carr
     "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
   
-const ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false, categoryByTier: {
+const ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carriers":false,"team":"allies", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -39,7 +39,7 @@ const ussr = {"id":"ussr","name":"U.S.S.R.","flag":"assets/flags/ussr.png","carr
     "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false, categoryByTier: {
+const germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.png","carriers":false,"team":"axis", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -51,7 +51,7 @@ const germany = {"id":"germany","name":"Germany","flag":"assets/flags/germany.pn
     "⭐": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"]
   }};
 
-const uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true, categoryByTier: {
+const uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true,"team":"allies", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship", "Aircraft Carrier"],
@@ -63,7 +63,7 @@ const uk = {"id":"uk","name":"U.K.","flag":"assets/flags/uk.png","carriers":true
     "⭐": ["Destroyer","Cruiser","Battleship"]
   }};
 
-const france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false, categoryByTier: {
+const france = {"id":"france","name":"France","flag":"assets/flags/france.png","carriers":false,"team":"allies", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship"],
@@ -75,7 +75,7 @@ const france = {"id":"france","name":"France","flag":"assets/flags/france.png","
     "⭐": ["Destroyer","Cruiser","Battleship"]
   }};
 
-const italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false, categoryByTier: {
+const italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carriers":false,"team":"axis", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser","Battleship"],
@@ -87,7 +87,7 @@ const italy = {"id":"italy","name":"Italy","flag":"assets/flags/italy.png","carr
     "⭐": ["Cruiser","Battleship"]
   }};
 
-const spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,
+const spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carriers":false,"team":"allies",
   categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Cruiser"],
@@ -101,7 +101,7 @@ const spain = {"id":"spain","name":"Spain","flag":"assets/flags/spain.png","carr
   }
 };
 
-const netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false, categoryByTier: {
+const netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flags/netherlands.png","carriers":false,"team":"allies", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Cruiser"],
     "Ⅲ": ["Cruiser"],
@@ -113,7 +113,7 @@ const netherlands = {"id":"netherlands","name":"Netherlands","flag":"assets/flag
     "⭐": ["Cruiser"]
   }};
 
-const pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false, categoryByTier: {
+const pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flags/pan-america.png","carriers":false,"team":"allies", categoryByTier: {
     "Ⅰ": [],
     "Ⅱ": [],
     "Ⅲ": [],
@@ -125,7 +125,7 @@ const pan_america = {"id":"pan-america","name":"Pan-America","flag":"assets/flag
     "⭐": []
   }};
 
-const commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true, categoryByTier: {
+const commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/flags/commonwealth.png","carriers":true,"team":"allies", categoryByTier: {
     "Ⅰ": [],
     "Ⅱ": ["Destroyer"],
     "Ⅲ": [],
@@ -137,7 +137,7 @@ const commonwealth = {"id":"commonwealth","name":"Commonwealth","flag":"assets/f
     "⭐": ["Cruiser"]
   }};
 
-const pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false, categoryByTier: {
+const pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asia.png","carriers":false,"team":"allies", categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer","Cruiser"],
     "Ⅲ": ["Destroyer","Cruiser"],
@@ -149,7 +149,7 @@ const pan_asia = {"id":"pan-asia","name":"Pan-Asia","flag":"assets/flags/pan-asi
     "⭐": ["Cruiser"]
   }};
 
-const europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,
+const europe = {"id":"europe","name":"Europe","flag":"assets/flags/europe.png","carriers":false,"team":"allies",
   categoryByTier: {
     "Ⅰ": ["Cruiser"],
     "Ⅱ": ["Destroyer"],
@@ -178,13 +178,6 @@ const nations = [
   pan_america,
   pan_asia,
 ];
-
-// annotate team membership for Axis vs Allies classification
-// simple grouping: Axis = {germany, italy, japan}, Allies = others
-nations.forEach(n => {
-  if(['germany','italy','japan'].includes(n.id)) n.team = 'axis';
-  else n.team = 'allies';
-});
 
 // ------------------------------------------------------------
 //                          UTILITIES
