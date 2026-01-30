@@ -98,18 +98,20 @@
             <div class="h-px bg-gray-700" aria-hidden="true" style="flex:1"></div>
           </div>
             <div id="submenu" class="my-2">
-              <div>
-                <button id="axisAlliesToggle" class="w-full px-3 py-2 rounded bg-blue-600 mb-2" aria-pressed="true">
-                  <img src="assets/lock.png" alt="lock" class="inline-icon" style="height:14px;width:14px;display:inline-block;vertical-align:middle;margin-right:8px">Axis/Allies
-                </button>
-              </div>
-              <div>
-                <button id="lockCategoryToggle" class="w-full px-3 py-2 rounded bg-gray-700 mb-2" aria-pressed="false">
-                  <img src="assets/lock.png" alt="lock" class="inline-icon" style="height:14px;width:14px;display:inline-block;vertical-align:middle;margin-right:8px">Lock Category
-                </button>
-              </div>
-              <div>
-                <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700 mb-2" aria-pressed="false">Aircraft-Carrier disabled</button>
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <button id="axisAlliesToggle" class="w-full px-3 py-2 rounded bg-blue-600" aria-pressed="true">
+                    <img src="assets/lock.png" alt="lock" class="inline-icon" style="height:14px;width:14px;display:inline-block;vertical-align:middle;margin-right:8px">Axis/Allies
+                  </button>
+                </div>
+                <div>
+                  <button id="lockCategoryToggle" class="w-full px-3 py-2 rounded bg-gray-700" aria-pressed="false">
+                    <img src="assets/lock.png" alt="lock" class="inline-icon" style="height:14px;width:14px;display:inline-block;vertical-align:middle;margin-right:8px">Category
+                  </button>
+                </div>
+                <div class="col-span-2">
+                  <button id="allowCarrier" class="w-full px-3 py-2 rounded bg-gray-700 mt-2" aria-pressed="false">Aircraft-Carrier disabled</button>
+                </div>
               </div>
             <div class="mb-2 grid grid-cols-2 gap-2">
               <div>
