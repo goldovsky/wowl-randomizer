@@ -634,16 +634,26 @@ async function onRandom() {
     for (let i = 1; i < players; i++) nationsSelected.push(nations[randomInt(nations.length)]);
   }
 
-  // compute categories per selected nation. Use per-player context (players=1)
-  // so mappings don't try to emit multi-slot arrays for a single nation.
+  // compute categories per selected nation.
+  // If category-lock is enabled, compute a single category for player1 and reuse it.
+  const lockCategory = $('lockCategoryToggle')?.classList.contains('bg-blue-600');
+  const effectiveAllowCarrier = allowCarrier && !lockCategory; // disallow carriers when categories are locked
   const categoriesPerPlayer = [];
-  for (const n of nationsSelected) {
-    // expose chosen tier temporarily on each nation so mapping can use it
+  if (lockCategory) {
+    const n = nationsSelected[0];
     n._selectedTier = tier;
-    categoriesPerPlayer.push(suggestCategory(n, allowCarrier, 1));
+    const cat = suggestCategory(n, effectiveAllowCarrier, 1);
+    for (let i = 0; i < nationsSelected.length; i++) categoriesPerPlayer.push(cat);
+    // cleanup
+    delete n._selectedTier;
+  } else {
+    for (const n of nationsSelected) {
+      n._selectedTier = tier;
+      categoriesPerPlayer.push(suggestCategory(n, effectiveAllowCarrier, 1));
+    }
+    // cleanup temporary field
+    for (const n of nationsSelected) delete n._selectedTier;
   }
-  // cleanup temporary field
-  for (const n of nationsSelected) delete n._selectedTier;
 
   // apply result using player1 as primary nation and pass categories array
   const categoryToShow = players > 1 ? categoriesPerPlayer : categoriesPerPlayer[0];
@@ -777,6 +787,42 @@ function setup() {
     });
   }
 
+  // lock category toggle: when enabled, all players receive same ship category
+  const lockCategoryEl = $('lockCategoryToggle');
+  function updateLockCategoryState() {
+    // disabled when single-player mode
+    const oneSelected = $('onePlayer')?.dataset && $('onePlayer').dataset.selected === '1';
+    if (lockCategoryEl) {
+      if (oneSelected) {
+        lockCategoryEl.classList.remove('bg-blue-600');
+        lockCategoryEl.classList.add('bg-gray-700');
+        lockCategoryEl.setAttribute('aria-pressed', 'false');
+        lockCategoryEl.disabled = true;
+      } else {
+        lockCategoryEl.disabled = false;
+      }
+    }
+  }
+  if (lockCategoryEl) {
+    lockCategoryEl.addEventListener('click', () => {
+      if (lockCategoryEl.classList.contains('bg-blue-600')) {
+        // turn off
+        lockCategoryEl.classList.remove('bg-blue-600'); lockCategoryEl.classList.add('bg-gray-700'); lockCategoryEl.setAttribute('aria-pressed', 'false');
+        // restore carrier toggle to enabled state
+        const carrierBtn = $('allowCarrier'); if (carrierBtn) carrierBtn.disabled = false;
+      } else {
+        // turn on
+        lockCategoryEl.classList.remove('bg-gray-700'); lockCategoryEl.classList.add('bg-blue-600'); lockCategoryEl.setAttribute('aria-pressed', 'true');
+
+        // when lock category is on we must disable aircraft carrier selection to avoid multi-carrier rules
+        const carrierBtn = $('allowCarrier'); if (carrierBtn) {
+          carrierBtn.classList.remove('bg-blue-600'); carrierBtn.classList.add('bg-gray-700'); carrierBtn.setAttribute('aria-pressed', 'false'); carrierBtn.disabled = true; carrierBtn.textContent = 'Aircraft-Carrier disabled';
+        }
+      }
+      resetResult();
+    });
+  }
+
   // ensure sensible defaults for min/max tier selectors when options panel opens
   const minTierSelect = $('minTier');
   const maxTierSelect = $('maxTier');
@@ -860,6 +906,7 @@ function setup() {
 
   // initial state: set players mode to 2 (keeps classes consistent)
   setPlayersMode(2);
+  updateLockCategoryState();
   // set carrier button default to disabled state
   const carrier = $('allowCarrier'); if (carrier) { carrier?.classList.remove('bg-blue-600'); carrier?.classList.add('bg-gray-700'); carrier.textContent = 'Aircraft-Carrier disabled'; }
   // setup flag image fallback handlers
