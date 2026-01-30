@@ -253,6 +253,9 @@ const nations = [
   },
 ];
 
+// canonical tier list used throughout the app
+const TIERS = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ', '⭐'];
+
 // ------------------------------------------------------------
 //                          UTILITIES
 //  Small helper functions used across the app
@@ -266,20 +269,8 @@ function pick(arr) { return arr[randomInt(arr.length)]; }
 
 // Weighted tier selection: very rare -> common
 function randomTier() {
-  // weights tuned to prefer V-VIII and legendary
-  // tiers: Ⅰ..Ⅷ and '⭐'
-  const weighted = [
-    'Ⅰ', // very very rare
-    'Ⅱ', 'Ⅱ', // very rare
-    'Ⅲ', 'Ⅲ', 'Ⅲ', // rare
-    'Ⅳ', 'Ⅳ', 'Ⅳ', 'Ⅳ', // pas commun
-    'Ⅴ', 'Ⅴ', 'Ⅴ', 'Ⅴ', 'Ⅴ', 'Ⅴ', // commun
-    'Ⅵ', 'Ⅵ', 'Ⅵ', 'Ⅵ', 'Ⅵ', 'Ⅵ', 'Ⅵ', // très commun
-    'Ⅶ', 'Ⅶ', 'Ⅶ', 'Ⅶ', 'Ⅶ', 'Ⅶ', 'Ⅶ', // très commun
-    'Ⅷ', 'Ⅷ', 'Ⅷ', 'Ⅷ', 'Ⅷ', 'Ⅷ', 'Ⅷ', // très commun
-    '⭐', '⭐', '⭐', '⭐', '⭐', '⭐' // commun
-  ];
-  return pick(weighted);
+  // uniform random tier selection across all tiers (no weighting)
+  return pick(TIERS);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -588,6 +579,10 @@ function resetResult() {
 
 async function onRandom() {
   const allowCarrier = $('allowCarrier')?.classList.contains('bg-blue-600');
+  // tier min/max filters (defaults handled in DOM). We'll pick tier within bounds
+  const minTierEl = $('minTier');
+  const maxTierEl = $('maxTier');
+
   // detect selected players mode: prefer dataset.selected, then visual classes for backward compatibility
   let players = 1;
   const threeEl = $('threePlayer');
@@ -610,7 +605,21 @@ async function onRandom() {
   // constrain other players to the same team. Nations are annotated in
   // the `team` property which we'll define below. If not enabled, fall back
   // to previous behaviour (random independent nations).
-  const tier = randomTier();
+  // choose tier while respecting min/max selectors. default to randomTier() if selectors not present
+  let tier;
+  if (minTierEl && maxTierEl) {
+    const minVal = minTierEl.value || 'Ⅳ';
+    const maxVal = maxTierEl.value || '⭐';
+    const minIdx = TIERS.indexOf(minVal);
+    const maxIdx = TIERS.indexOf(maxVal);
+    if (minIdx >= 0 && maxIdx >= 0 && minIdx <= maxIdx) {
+      tier = TIERS[minIdx + randomInt(maxIdx - minIdx + 1)];
+    } else {
+      tier = randomTier();
+    }
+  } else {
+    tier = randomTier();
+  }
   // expose the chosen tier temporarily on the nation object so suggestCategory
   // can consult per-tier mappings defined in the nation (categoryByTier)
   // We'll compute nations selected for each player depending on Axis/Allies option.
@@ -766,6 +775,65 @@ function setup() {
       // resetting result when carrier preference changes
       resetResult();
     });
+  }
+
+  // ensure sensible defaults for min/max tier selectors when options panel opens
+  const minTierSelect = $('minTier');
+  const maxTierSelect = $('maxTier');
+  if (minTierSelect && maxTierSelect) {
+    // use TIERS constant for ordering and comparisons
+
+    // set defaults if not already set
+    if (!minTierSelect.value) minTierSelect.value = 'Ⅳ';
+    if (!maxTierSelect.value) maxTierSelect.value = '⭐';
+
+    // helper to ensure options outside the allowed range are disabled
+    function updateTierBounds() {
+      const minVal = minTierSelect.value || 'Ⅰ';
+      const maxVal = maxTierSelect.value || '⭐';
+      const minIdx = TIERS.indexOf(minVal);
+      const maxIdx = TIERS.indexOf(maxVal);
+      // disable min options that are greater than current max
+      Array.from(minTierSelect.options).forEach(opt => {
+        const i = TIERS.indexOf(opt.value);
+        opt.disabled = i > maxIdx;
+      });
+      // disable max options that are less than current min
+      Array.from(maxTierSelect.options).forEach(opt => {
+        const i = TIERS.indexOf(opt.value);
+        opt.disabled = i < minIdx;
+      });
+      // if selections are invalid, clamp them
+      if (TIERS.indexOf(minTierSelect.value) > maxIdx) {
+        minTierSelect.value = TIERS[maxIdx];
+        const el = minTierSelect.parentElement.querySelector('.tier-value'); if (el) el.textContent = minTierSelect.value;
+      }
+      if (TIERS.indexOf(maxTierSelect.value) < minIdx) {
+        maxTierSelect.value = TIERS[minIdx];
+        const el = maxTierSelect.parentElement.querySelector('.tier-value'); if (el) el.textContent = maxTierSelect.value;
+      }
+    }
+
+    // initialize visible labels
+    const minLabelEl = minTierSelect.parentElement.querySelector('.tier-value'); if (minLabelEl) minLabelEl.textContent = minTierSelect.value;
+    const maxLabelEl = maxTierSelect.parentElement.querySelector('.tier-value'); if (maxLabelEl) maxLabelEl.textContent = maxTierSelect.value;
+
+    // wire changes: update bounds first (may clamp), then refresh visible label and reset result
+    minTierSelect.addEventListener('change', (e) => {
+      updateTierBounds();
+      const v = e.target.value;
+      const el = e.target.parentElement.querySelector('.tier-value'); if (el) el.textContent = v;
+      resetResult();
+    });
+    maxTierSelect.addEventListener('change', (e) => {
+      updateTierBounds();
+      const v = e.target.value;
+      const el = e.target.parentElement.querySelector('.tier-value'); if (el) el.textContent = v;
+      resetResult();
+    });
+
+    // apply initial bounds disabling
+    updateTierBounds();
   }
 
   // axis/allies toggle: active by default
