@@ -253,666 +253,779 @@ const nations = [
   },
 ];
 
-// canonical tier list used throughout the app
+// Canonical tier list used throughout the app
 const TIERS = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ', '⭐'];
 
-// ------------------------------------------------------------
-//                          UTILITIES
+// Ship categories available in the game
+const CATEGORIES = {
+  DESTROYER: 'Destroyer',
+  CRUISER: 'Cruiser',
+  BATTLESHIP: 'Battleship',
+  CARRIER: 'Aircraft Carrier'
+};
+
+// ============================================================
+//                      UTILITY FUNCTIONS
 //  Small helper functions used across the app
-// ------------------------------------------------------------
+// ============================================================
 
-function $(id) { return document.getElementById(id); }
-
-function randomInt(max) { return Math.floor(Math.random() * max); }
-
-function pick(arr) { return arr[randomInt(arr.length)]; }
-
-// Weighted tier selection: very rare -> common
-function randomTier() {
-  // uniform random tier selection across all tiers (no weighting)
-  return pick(TIERS);
+// Quick DOM element selector
+function getElement(id) {
+  return document.getElementById(id);
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                       APPLICATION CORE
-//  Main app flow, category suggestion logic and UI glue
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function suggestCategory(nation, allowCarrier, players) {
-  const base = ['Destroyer', 'Cruiser', 'Battleship'];
-  const categories = [...base];
-  if (allowCarrier && nation.carriers) categories.push('Aircraft Carrier');
-
-  // If the nation defines explicit categories per tier, use that mapping.
-  // The mapping keys are strings: '1'..'8' or '⭐'. Mapping values may be:
-  //  - a string (single category)
-  //  - an array: either [cat1, cat2] to explicitly assign both players,
-  //    or an array used as a pool of choices.
-  function applyMappingForTier(tier) {
-    if (!nation || !nation.categoryByTier) return null;
-    const key = String(tier);
-    const m = nation.categoryByTier[key];
-    if (m === undefined) return null;
-    // helper to check carrier availability
-    const allowed = (cat) => !(cat === 'Aircraft Carrier' && (!allowCarrier || !nation.carriers));
-
-    if (typeof m === 'string') {
-      if (allowed(m)) return m;
-      return null; // mapping targets carrier but carriers not allowed => fall back
-    }
-    if (Array.isArray(m)) {
-      // explicit three-slot assignment when exactly three strings are provided
-      if (players === 3 && m.length === 3 && typeof m[0] === 'string' && typeof m[1] === 'string' && typeof m[2] === 'string') {
-        let a = m[0]; let b = m[1]; let c = m[2];
-        if (!allowed(a)) a = null;
-        if (!allowed(b)) b = null;
-        if (!allowed(c)) c = null;
-        // if more than one carrier present, keep the first carrier and replace others
-        const slots = [a, b, c];
-        const carrierIndices = slots.map((s, i) => s === 'Aircraft Carrier' ? i : -1).filter(i => i >= 0);
-        if (carrierIndices.length > 1) {
-          // keep first carrier, replace others from fallback pool without carriers
-          const poolNoCarrier = categories.filter(x => x !== 'Aircraft Carrier').filter(allowed);
-          for (let i = 1; i < carrierIndices.length; i++) {
-            const idx = carrierIndices[i];
-            slots[idx] = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories.filter(allowed));
-          }
-        }
-        // fill any null slots from allowed pool
-        for (let i = 0; i < 3; i++) if (slots[i] == null) slots[i] = pick(categories.filter(allowed));
-        return slots;
-      }
-      // explicit two-slot assignment when exactly two strings are provided
-      if (players === 2 && m.length === 2 && typeof m[0] === 'string' && typeof m[1] === 'string') {
-        let a = m[0]; let b = m[1];
-        // enforce carrier rules: if one of them is an Aircraft Carrier but carriers not allowed, replace it later
-        if (!allowed(a)) a = null;
-        if (!allowed(b)) b = null;
-        // if both ended up as carriers and carriers are allowed, enforce max 1 carrier
-        if (a === 'Aircraft Carrier' && b === 'Aircraft Carrier') {
-          const poolNoCarrier = categories.filter(c => c !== 'Aircraft Carrier');
-          b = poolNoCarrier.length ? pick(poolNoCarrier) : pick(categories);
-        }
-        if (a == null) a = pick(categories.filter(allowed));
-        if (b == null) b = pick(categories.filter(allowed));
-        return [a, b];
-      }
-      // otherwise treat array as a pool to pick from
-      const pool = m.slice().filter(x => typeof x === 'string' && allowed(x));
-      if (pool.length === 0) return null;
-      if (players === 1) {
-        return pick(pool);
-      }
-      if (players === 2) {
-        // players === 2: pick two, enforcing max 1 carrier between them
-        const first = pick(pool);
-        let second;
-        if (first === 'Aircraft Carrier') {
-          const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
-          second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
-        } else {
-          second = pick(pool);
-        }
-        return [first, second];
-      }
-      // players === 3: pick three, enforcing max 1 carrier among them
-      const pickPool = pool.slice();
-      const result = [];
-      let carrierChosen = false;
-      for (let i = 0; i < 3; i++) {
-        let candidatePool = pickPool;
-        if (carrierChosen) {
-          candidatePool = pickPool.filter(c => c !== 'Aircraft Carrier');
-        }
-        if (candidatePool.length === 0) candidatePool = pickPool;
-        const sel = pick(candidatePool);
-        result.push(sel);
-        if (sel === 'Aircraft Carrier') carrierChosen = true;
-      }
-      return result;
-    }
-    return null;
-  }
-
-  // try mapping first; if it yields a valid category (or categories), use it
-  // Note: tier will be provided by caller as number or '⭐'
-  // The caller of suggestCategory passes only nation, allowCarrier and players —
-  // to use mapping that depends on tier we need the tier value. We'll support
-  // mapping only when caller passes a special temporary property on the nation
-  // object called `_selectedTier` (set by onRandom) to keep calling convention simple.
-  const tierForMapping = nation && nation._selectedTier !== undefined ? nation._selectedTier : null;
-  if (tierForMapping !== null) {
-    const mapped = applyMappingForTier(tierForMapping);
-    if (mapped) return mapped;
-  }
-
-  // create a weighted pool favoring larger ships slightly
-  const pool = [];
-  for (const c of categories) {
-    if (c === 'Destroyer') pool.push(...Array(2).fill(c));
-    if (c === 'Cruiser') pool.push(...Array(3).fill(c));
-    if (c === 'Battleship') pool.push(...Array(4).fill(c));
-    if (c === 'Aircraft Carrier') pool.push(...Array(3).fill(c));
-  }
-
-  if (players === 2) {
-    // Strict rule: max 1 Aircraft Carrier between the two players
-    const first = pick(pool);
-    let second;
-    if (first === 'Aircraft Carrier') {
-      // ensure second is NOT Aircraft Carrier by filtering pool
-      const poolNoCarrier = pool.filter(c => c !== 'Aircraft Carrier');
-      second = poolNoCarrier.length ? pick(poolNoCarrier) : pick(pool);
-    } else {
-      // first is not carrier; second may be carrier
-      second = pick(pool);
-      // if second is carrier, it's allowed (only one carrier)
-    }
-    return [first, second];
-  }
-
-  const sel = pick(pool);
-  return sel;
+// Generate random integer from 0 to max (exclusive)
+function randomInt(max) {
+  return Math.floor(Math.random() * max);
 }
 
-function applyResult({ nation, tier, category, players = 1 }) {
-  // set tier (now displayed on left) and per-player nation names
-  // set tier label and result positions
-  const tierLabelEl = $('tierLabel'); if (tierLabelEl) tierLabelEl.textContent = 'Tier';
-  $('tier').textContent = tier;
-  const _n1 = $('nationName1'); if (_n1) _n1.textContent = nation.name || nation.id;
-  // ensure other nation name slots are present when used
-  const _n2 = $('nationName2'); if (_n2) _n2.textContent = '—';
-  const _n3 = $('nationName3'); if (_n3) _n3.textContent = '—';
-  const divider = $('typeDivider');
-  const divider2 = $('typeDivider2');
-  const catImg = $('categoryImg');
-  const catImg2 = $('categoryImg2');
-  const catImg3 = $('categoryImg3');
-
-  function setCatImg(el, catDisplayed) {
-    if (!el) return;
-    const path = 'assets/categories/' + encodeURIComponent(catDisplayed) + '.png';
-    el.src = path;
-    el?.classList.remove('hidden');
-    if (el.dataset) el.dataset.attemptedFallback = '';
-  }
-
-  function formatLabel(cat) {
-    if (!cat) return '—';
-    // when in 3-player mode abbreviate long "Aircraft Carrier" label to avoid wrapping
-    if (players === 3 && cat === 'Aircraft Carrier') return 'A. Carrier';
-    return cat;
-  }
-
-  if (Array.isArray(category)) {
-    // support arrays of length 2 or 3
-    const len = category.length;
-    $('category').textContent = formatLabel(category[0]) || '—';
-    if (len >= 2) {
-      $('category2').textContent = formatLabel(category[1]) || '—';
-      $('category2')?.classList.remove('hidden');
-      $('type2')?.classList.remove('hidden');
-      if (catImg2) setCatImg(catImg2, category[1]);
-    } else {
-      $('category2')?.classList.add('hidden');
-      $('type2')?.classList.add('hidden');
-      if (catImg2) { catImg2?.classList.add('hidden'); catImg2.src = ''; }
-    }
-    if (len >= 3) {
-      $('category3').textContent = formatLabel(category[2]) || '—';
-      $('category3')?.classList.remove('hidden');
-      $('type3')?.classList.remove('hidden');
-      if (catImg3) setCatImg(catImg3, category[2]);
-    } else {
-      $('category3')?.classList.add('hidden');
-      $('type3')?.classList.add('hidden');
-      if (catImg3) { catImg3?.classList.add('hidden'); catImg3.src = ''; }
-    }
-    // set first category image
-    if (catImg) setCatImg(catImg, category[0]);
-  } else {
-    $('category').textContent = formatLabel(category);
-    $('category2')?.classList.add('hidden');
-    $('category3')?.classList.add('hidden');
-    // hide second column + divider when single category
-    $('type2')?.classList.add('hidden');
-    if (divider) divider?.classList.add('hidden');
-    if (catImg) setCatImg(catImg, category);
-    if (catImg2) { catImg2?.classList.add('hidden'); catImg2.src = ''; }
-    // hide third column + divider when single category
-    $('type3')?.classList.add('hidden');
-    if (divider2) divider2?.classList.add('hidden');
-    if (catImg3) { catImg3?.classList.add('hidden'); catImg3.src = ''; }
-  }
-  // set flag for player 1; other players will be set when they exist
-  const img1 = $('flagImg1'); if (img1 && nation.flag) { img1.src = nation.flag; img1.classList.remove('hidden'); img1.hidden = false; }
+// Pick a random element from an array
+function pickRandom(array) {
+  return array[randomInt(array.length)];
 }
 
-// Ensure flag image falls back to placeholder if the file is missing or fails to load
+// Pick a random tier from the TIERS list
+function selectRandomTier() {
+  return pickRandom(TIERS);
+}
+
+// Add a CSS class to an element
+function addClass(element, className) {
+  element?.classList.add(className);
+}
+
+// Remove a CSS class from an element
+function removeClass(element, className) {
+  element?.classList.remove(className);
+}
+
+// Toggle button state between active (blue) and inactive (gray)
+function setButtonState(button, isActive) {
+  if (!button) return;
+
+  removeClass(button, isActive ? 'bg-gray-700' : 'bg-blue-600');
+  addClass(button, isActive ? 'bg-blue-600' : 'bg-gray-700');
+  button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+}
+
+// ============================================================
+//                   CATEGORY SELECTION LOGIC
+//  Functions to determine which ship categories to suggest
+// ============================================================
+
+// Check if a category is allowed based on carrier restrictions
+function isCategoryAllowed(category, allowCarrier, nationHasCarriers) {
+  if (category !== CATEGORIES.CARRIER) return true;
+  return allowCarrier && nationHasCarriers;
+}
+
+// Filter categories based on carrier availability
+function filterAllowedCategories(categories, allowCarrier, nationHasCarriers) {
+  return categories.filter(cat => isCategoryAllowed(cat, allowCarrier, nationHasCarriers));
+}
+
+// Pick multiple categories while enforcing max 1 carrier rule
+function pickCategories(count, pool) {
+  // Single category - just pick one randomly
+  if (count === 1) {
+    return pickRandom(pool);
+  }
+
+  // Multiple categories - enforce max 1 carrier across all picks
+  const result = [];
+  let carrierAlreadyPicked = false;
+
+  for (let i = 0; i < count; i++) {
+    let availablePool = pool;
+
+    // If we already picked a carrier, exclude it from future picks
+    if (carrierAlreadyPicked) {
+      availablePool = pool.filter(cat => cat !== CATEGORIES.CARRIER);
+    }
+
+    // Fallback to full pool if no options left
+    if (availablePool.length === 0) {
+      availablePool = pool;
+    }
+
+    const selected = pickRandom(availablePool);
+    result.push(selected);
+
+    if (selected === CATEGORIES.CARRIER) {
+      carrierAlreadyPicked = true;
+    }
+  }
+
+  return result;
+}
+
+// Get categories available for a specific nation and tier
+function getCategoriesForNationTier(nation, tier, allowCarrier) {
+  if (!nation?.categoryByTier?.[tier]) return null;
+
+  const tierMapping = nation.categoryByTier[tier];
+  return filterAllowedCategories(tierMapping, allowCarrier, nation.carriers);
+}
+
+// Main function to suggest ship categories for players
+function suggestCategories(nation, tier, allowCarrier, playerCount) {
+  // Try to get specific categories from nation's tier mapping
+  const availableCategories = getCategoriesForNationTier(nation, tier, allowCarrier);
+
+  // If nation has specific categories for this tier, use them
+  if (availableCategories && availableCategories.length > 0) {
+    return pickCategories(playerCount, availableCategories);
+  }
+
+  // Fallback: use default category selection
+  const baseCategories = [CATEGORIES.DESTROYER, CATEGORIES.CRUISER, CATEGORIES.BATTLESHIP];
+  const allCategories = [...baseCategories];
+
+  if (allowCarrier && nation.carriers) {
+    allCategories.push(CATEGORIES.CARRIER);
+  }
+
+  return pickCategories(playerCount, allCategories);
+}
+
+// ============================================================
+//                   DISPLAY / UI FUNCTIONS
+//  Functions to update the UI with results
+// ============================================================
+
+// Format category label for display (abbreviate "Aircraft Carrier" in 3-player mode)
+function formatCategoryLabel(category, playerCount) {
+  if (!category) return '—';
+  if (playerCount === 3 && category === CATEGORIES.CARRIER) {
+    return 'A. Carrier';
+  }
+  return category;
+}
+
+// Set the category image for a player slot
+function setCategoryImage(imageElement, category) {
+  if (!imageElement) return;
+
+  const imagePath = `assets/categories/${encodeURIComponent(category)}.png`;
+  imageElement.src = imagePath;
+  removeClass(imageElement, 'hidden');
+  imageElement.dataset.attemptedFallback = '';
+}
+
+// Update a single player's display (nation name, flag, category)
+function updatePlayerDisplay(playerNumber, nation, category, playerCount) {
+  const nationNameElement = getElement(`nationName${playerNumber}`);
+  const flagImageElement = getElement(`flagImg${playerNumber}`);
+  const categoryElement = getElement(`category${playerNumber === 1 ? '' : playerNumber}`);
+  const categoryImageElement = getElement(`categoryImg${playerNumber === 1 ? '' : playerNumber}`);
+  const typeElement = getElement(`type${playerNumber}`);
+
+  // Update nation name
+  if (nationNameElement) {
+    nationNameElement.textContent = nation.name || nation.id;
+  }
+
+  // Update flag
+  if (flagImageElement) {
+    flagImageElement.src = nation.flag || 'assets/flags/placeholder.svg';
+    removeClass(flagImageElement, 'hidden');
+    flagImageElement.removeAttribute('hidden');
+  }
+
+  // Update category text and image
+  if (categoryElement) {
+    categoryElement.textContent = formatCategoryLabel(category, playerCount);
+  }
+
+  if (categoryImageElement && category) {
+    setCategoryImage(categoryImageElement, category);
+  }
+
+  // Show the type column for this player
+  if (typeElement) {
+    removeClass(typeElement, 'hidden');
+  }
+}
+
+// Hide a player's display slot
+function hidePlayerDisplay(playerNumber) {
+  const categoryElement = getElement(`category${playerNumber === 1 ? '' : playerNumber}`);
+  const categoryImageElement = getElement(`categoryImg${playerNumber === 1 ? '' : playerNumber}`);
+  const typeElement = getElement(`type${playerNumber}`);
+
+  if (categoryElement) {
+    categoryElement.textContent = '';
+    addClass(categoryElement, 'hidden');
+  }
+
+  if (categoryImageElement) {
+    categoryImageElement.src = '';
+    addClass(categoryImageElement, 'hidden');
+  }
+
+  if (typeElement) {
+    addClass(typeElement, 'hidden');
+  }
+}
+
+// Display the randomized result on screen
+function displayResult(nations, tier, categories, playerCount) {
+  // Update tier display
+  const tierLabelElement = getElement('tierLabel');
+  const tierElement = getElement('tier');
+
+  if (tierLabelElement) tierLabelElement.textContent = 'Tier';
+  if (tierElement) tierElement.textContent = tier;
+
+  // Ensure categories is always an array
+  const categoryArray = Array.isArray(categories) ? categories : [categories];
+
+  // Update each player's display
+  for (let i = 0; i < playerCount; i++) {
+    updatePlayerDisplay(i + 1, nations[i], categoryArray[i], playerCount);
+  }
+
+  // Hide unused player slots
+  for (let i = playerCount; i < 3; i++) {
+    hidePlayerDisplay(i + 1);
+  }
+}
+
+// Reset the display to initial empty state
+function resetDisplay() {
+  const tierElement = getElement('tier');
+  if (tierElement) tierElement.textContent = '—';
+
+  // Reset all player displays
+  for (let i = 1; i <= 3; i++) {
+    const nationNameElement = getElement(`nationName${i}`);
+    const flagImageElement = getElement(`flagImg${i}`);
+    const categoryElement = getElement(`category${i === 1 ? '' : i}`);
+    const categoryImageElement = getElement(`categoryImg${i === 1 ? '' : i}`);
+
+    if (nationNameElement) nationNameElement.textContent = '—';
+
+    if (flagImageElement) {
+      flagImageElement.src = 'assets/flags/placeholder.svg';
+      addClass(flagImageElement, 'hidden');
+      flagImageElement.setAttribute('hidden', '');
+    }
+
+    if (categoryElement) {
+      categoryElement.textContent = '';
+      addClass(categoryElement, 'hidden');
+    }
+
+    if (categoryImageElement) {
+      categoryImageElement.src = '';
+      addClass(categoryImageElement, 'hidden');
+    }
+  }
+}
+
+// ============================================================
+//               IMAGE ERROR HANDLING
+//  Handle missing flag/category images with fallbacks
+// ============================================================
+
+// Try alternate image format (png <-> svg) on load error
+function tryAlternateImageFormat(imageElement) {
+  const alreadyTriedFallback = imageElement.dataset.attemptedFallback;
+  if (alreadyTriedFallback) return false;
+
+  imageElement.dataset.attemptedFallback = '1';
+  const currentSrc = imageElement.src || '';
+
+  if (currentSrc.endsWith('.png')) {
+    imageElement.src = currentSrc.replace(/\.png$/, '.svg');
+    return true;
+  } else if (currentSrc.endsWith('.svg')) {
+    imageElement.src = currentSrc.replace(/\.svg$/, '.png');
+    return true;
+  }
+
+  return false;
+}
+
+// Setup error handlers for flag images
 function setupFlagImageHandlers() {
-  // flag handlers: update for per-player flag elements (flagImg1/2/3)
-  const imgs = [$('flagImg1'), $('flagImg2'), $('flagImg3')].filter(Boolean);
-  imgs.forEach(img => {
-    img.onerror = function () {
-      // if we haven't tried the alternate extension yet, attempt it (png <-> svg)
-      try {
-        const attempted = img.dataset.attemptedFallback;
-        if (!attempted) {
-          img.dataset.attemptedFallback = '1';
-          const src = img.src || '';
-          if (src.endsWith('.png')) {
-            img.src = src.replace(/\.png$/, '.svg');
-            console.warn('Flag image missing, trying .svg alternative for', src);
-            return;
-          } else if (src.endsWith('.svg')) {
-            img.src = src.replace(/\.svg$/, '.png');
-            console.warn('Flag image missing, trying .png alternative for', src);
-            return;
-          }
-        }
-      } catch (e) { /* ignore and fallback */ }
-      console.warn('Flag image failed to load, falling back to placeholder:', img.src);
-      img.src = 'assets/flags/placeholder.svg';
+  const flagImages = [
+    getElement('flagImg1'),
+    getElement('flagImg2'),
+    getElement('flagImg3')
+  ].filter(Boolean);
+
+  flagImages.forEach(image => {
+    image.onerror = function () {
+      if (tryAlternateImageFormat(image)) {
+        console.warn('Flag image missing, trying alternate format:', image.src);
+        return;
+      }
+
+      console.warn('Flag image failed to load, using placeholder:', image.src);
+      image.src = 'assets/flags/placeholder.svg';
     };
-    img.onload = function () {
-      // keep subtle background look but ensure image is visible
-      img?.classList.add('object-cover');
-      img?.classList.remove('hidden');
+
+    image.onload = function () {
+      addClass(image, 'object-cover');
+      removeClass(image, 'hidden');
     };
   });
 }
 
+// Setup error handlers for category images
 function setupCategoryImageHandlers() {
-  const imgs = [$('categoryImg'), $('categoryImg2'), $('categoryImg3')].filter(Boolean);
-  imgs.forEach(img => {
-    img.onerror = function () {
-      try {
-        const attempted = img.dataset && img.dataset.attemptedFallback;
-        if (!attempted) {
-          if (img.dataset) img.dataset.attemptedFallback = '1';
-          const src = img.src || '';
-          if (src.endsWith('.png')) {
-            img.src = src.replace(/\.png$/, '.svg');
-            console.warn('Category image missing, trying .svg alternative for', src);
-            return;
-          } else if (src.endsWith('.svg')) {
-            img.src = src.replace(/\.svg$/, '.png');
-            console.warn('Category image missing, trying .png alternative for', src);
-            return;
-          }
-        }
-      } catch (e) { }
-      img?.classList.add('hidden');
-      img.src = '';
+  const categoryImages = [
+    getElement('categoryImg'),
+    getElement('categoryImg2'),
+    getElement('categoryImg3')
+  ].filter(Boolean);
+
+  categoryImages.forEach(image => {
+    image.onerror = function () {
+      if (tryAlternateImageFormat(image)) {
+        console.warn('Category image missing, trying alternate format:', image.src);
+        return;
+      }
+
+      // Hide image if all formats fail
+      addClass(image, 'hidden');
+      image.src = '';
     };
-    img.onload = function () {
-      img?.classList.remove('hidden');
-      img?.classList.add('object-contain');
+
+    image.onload = function () {
+      removeClass(image, 'hidden');
+      addClass(image, 'object-contain');
     };
   });
 }
 
-function resetResult() {
-  const _r1 = $('nationName1'); if (_r1) _r1.textContent = '—';
-  const _r2 = $('nationName2'); if (_r2) _r2.textContent = '—';
-  const _r3 = $('nationName3'); if (_r3) _r3.textContent = '—';
-  // when no result: hide flags, categories and tier — only show the single dash per player
-  $('tier').textContent = '—';
-  $('category').textContent = '';
+// ============================================================
+//                  GAME LOGIC / RANDOMIZATION
+//  Core randomization and nation/tier selection
+// ============================================================
 
-  // hide secondary category displays when no result
-  const cat2 = $('category2'); if (cat2) { cat2.textContent = ''; cat2?.classList.add('hidden'); }
-  const cat3 = $('category3'); if (cat3) { cat3.textContent = ''; cat3?.classList.add('hidden'); }
+// Get currently selected number of players (1, 2, or 3)
+function getSelectedPlayerCount() {
+  const onePlayerButton = getElement('onePlayer');
+  const twoPlayerButton = getElement('twoPlayer');
+  const threePlayerButton = getElement('threePlayer');
 
-  // reset per-player flags: hide flags (no placeholder) when no result
-  const img1 = $('flagImg1'); if (img1) { img1.src = 'assets/flags/placeholder.svg'; img1.classList.add('hidden'); img1.setAttribute('hidden', ''); }
-  const img2 = $('flagImg2'); if (img2) { img2.src = 'assets/flags/placeholder.svg'; img2.classList.add('hidden'); img2.setAttribute('hidden', ''); }
-  const img3 = $('flagImg3'); if (img3) { img3.src = 'assets/flags/placeholder.svg'; img3.classList.add('hidden'); img3.setAttribute('hidden', ''); }
-  // separators removed: no-op (kept for compatibility)
-  // hide legacy flag image on reset (no longer used)
-  $('flagImg')?.classList.add('hidden');
-  const cimg = $('categoryImg'); if (cimg) { cimg.src = ''; cimg?.classList.add('hidden'); }
-  const cimg2 = $('categoryImg2'); if (cimg2) { cimg2.src = ''; cimg2?.classList.add('hidden'); }
-  const cimg3 = $('categoryImg3'); if (cimg3) { cimg3.src = ''; cimg3?.classList.add('hidden'); }
+  // Check dataset.selected first, then fallback to CSS classes
+  if (threePlayerButton?.dataset?.selected === '1') return 3;
+  if (twoPlayerButton?.dataset?.selected === '1') return 2;
+  if (onePlayerButton?.dataset?.selected === '1') return 1;
+
+  // Fallback: check for blue background class
+  const isBlue = (el) => el?.classList.contains('bg-blue-600') || el?.classList.contains('bg-blue-700');
+  if (isBlue(threePlayerButton)) return 3;
+  if (isBlue(twoPlayerButton)) return 2;
+
+  return 1;
 }
 
-async function onRandom() {
-  const allowCarrier = $('allowCarrier')?.classList.contains('bg-blue-600');
-  // tier min/max filters (defaults handled in DOM). We'll pick tier within bounds
-  const minTierEl = $('minTier');
-  const maxTierEl = $('maxTier');
+// Check if carrier selection is allowed
+function isCarrierAllowed() {
+  const allowCarrierButton = getElement('allowCarrier');
+  return allowCarrierButton?.classList.contains('bg-blue-600');
+}
 
-  // detect selected players mode: prefer dataset.selected, then visual classes for backward compatibility
-  let players = 1;
-  const threeEl = $('threePlayer');
-  const twoEl = $('twoPlayer');
-  const oneEl = $('onePlayer');
-  if (threeEl && threeEl.dataset && threeEl.dataset.selected === '1') players = 3;
-  else if (twoEl && twoEl.dataset && twoEl.dataset.selected === '1') players = 2;
-  else if (oneEl && oneEl.dataset && oneEl.dataset.selected === '1') players = 1;
-  else {
-    // fallback to inspecting classes (support both bg-blue-600 and bg-blue-700)
-    const isBlue = (el) => el && (el.classList.contains('bg-blue-600') || el.classList.contains('bg-blue-700'));
-    if (isBlue(threeEl)) players = 3;
-    else if (isBlue(twoEl)) players = 2;
+// Check if axis/allies team matching is enabled
+function isSameTeamEnabled() {
+  const axisAlliesButton = getElement('axisAlliesToggle');
+  return axisAlliesButton?.classList.contains('bg-blue-600');
+}
+
+// Check if category locking is enabled (all players get same category)
+function isCategoryLockEnabled() {
+  const lockCategoryButton = getElement('lockCategoryToggle');
+  return lockCategoryButton?.classList.contains('bg-blue-600');
+}
+
+// Select a random tier within the min/max range
+function selectTierInRange() {
+  const minTierElement = getElement('minTier');
+  const maxTierElement = getElement('maxTier');
+
+  if (!minTierElement || !maxTierElement) {
+    return selectRandomTier();
   }
 
-  const useSameTeam = $('axisAlliesToggle')?.classList.contains('bg-blue-600');
-  const idx = randomInt(nations.length);
-  const nation = nations[idx];
-  // If Axis/Allies option is enabled, pick player 1's nation at random then
-  // constrain other players to the same team. Nations are annotated in
-  // the `team` property which we'll define below. If not enabled, fall back
-  // to previous behaviour (random independent nations).
-  // choose tier while respecting min/max selectors. default to randomTier() if selectors not present
-  let tier;
-  if (minTierEl && maxTierEl) {
-    const minVal = minTierEl.value || 'Ⅳ';
-    const maxVal = maxTierEl.value || '⭐';
-    const minIdx = TIERS.indexOf(minVal);
-    const maxIdx = TIERS.indexOf(maxVal);
-    if (minIdx >= 0 && maxIdx >= 0 && minIdx <= maxIdx) {
-      tier = TIERS[minIdx + randomInt(maxIdx - minIdx + 1)];
+  const minTierValue = minTierElement.value || 'Ⅳ';
+  const maxTierValue = maxTierElement.value || '⭐';
+
+  const minIndex = TIERS.indexOf(minTierValue);
+  const maxIndex = TIERS.indexOf(maxTierValue);
+
+  if (minIndex >= 0 && maxIndex >= 0 && minIndex <= maxIndex) {
+    const randomIndex = minIndex + randomInt(maxIndex - minIndex + 1);
+    return TIERS[randomIndex];
+  }
+
+  return selectRandomTier();
+}
+
+// Select nations for all players
+function selectNationsForPlayers(playerCount, useSameTeam) {
+  const firstNation = pickRandom(nations);
+  const selectedNations = [firstNation];
+
+  if (playerCount === 1) return selectedNations;
+
+  if (useSameTeam) {
+    // All players must be from the same team (allies or axis)
+    const team = firstNation.team || 'allies';
+    const sameTeamNations = nations.filter(nation => (nation.team || 'allies') === team);
+
+    for (let i = 1; i < playerCount; i++) {
+      selectedNations.push(pickRandom(sameTeamNations));
+    }
+  } else {
+    // Each player gets a random nation (can be duplicates)
+    for (let i = 1; i < playerCount; i++) {
+      selectedNations.push(pickRandom(nations));
+    }
+  }
+
+  return selectedNations;
+}
+
+// Generate categories for all players
+function generateCategoriesForPlayers(selectedNations, tier, allowCarrier, categoryLocked) {
+  if (categoryLocked) {
+    // All players get the same category
+    const firstNation = selectedNations[0];
+    const category = suggestCategories(firstNation, tier, allowCarrier, 1);
+    return selectedNations.map(() => category);
+  }
+
+  // Each player gets their own category
+  return selectedNations.map(nation =>
+    suggestCategories(nation, tier, allowCarrier, 1)
+  );
+}
+
+// Main randomization function - called when "Generate" button is clicked
+function handleRandomize() {
+  const playerCount = getSelectedPlayerCount();
+  const allowCarrier = isCarrierAllowed();
+  const useSameTeam = isSameTeamEnabled();
+  const categoryLocked = isCategoryLockEnabled();
+
+  // Disable carriers when category is locked
+  const effectiveAllowCarrier = allowCarrier && !categoryLocked;
+
+  // Select tier within configured range
+  const tier = selectTierInRange();
+
+  // Select nations for all players
+  const selectedNations = selectNationsForPlayers(playerCount, useSameTeam);
+
+  // Generate categories for all players
+  const categories = generateCategoriesForPlayers(
+    selectedNations,
+    tier,
+    effectiveAllowCarrier,
+    categoryLocked
+  );
+
+  // Display the result
+  displayResult(selectedNations, tier, categories, playerCount);
+}
+
+// ============================================================
+//                  UI SETUP / EVENT HANDLERS
+//  Initialize the interface and wire up user interactions
+// ============================================================
+
+// Update player mode display (1, 2, or 3 players)
+function setPlayerMode(playerCount) {
+  const onePlayerButton = getElement('onePlayer');
+  const twoPlayerButton = getElement('twoPlayer');
+  const threePlayerButton = getElement('threePlayer');
+
+  // Remove all color classes first
+  [onePlayerButton, twoPlayerButton, threePlayerButton].forEach(button => {
+    removeClass(button, 'bg-blue-600');
+    removeClass(button, 'bg-blue-700');
+    removeClass(button, 'bg-gray-600');
+    removeClass(button, 'bg-gray-700');
+  });
+
+  // Apply correct state to each button
+  const buttons = [onePlayerButton, twoPlayerButton, threePlayerButton];
+  buttons.forEach((button, index) => {
+    if (!button) return;
+
+    const isSelected = (index + 1) === playerCount;
+    addClass(button, isSelected ? 'bg-blue-600' : 'bg-gray-700');
+    button.dataset.selected = isSelected ? '1' : '';
+    button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+  });
+
+  // Show/hide player columns based on player count
+  const type2Element = getElement('type2');
+  const type3Element = getElement('type3');
+  const divider1Element = getElement('typeDivider');
+  const divider2Element = getElement('typeDivider2');
+
+  const player1Label = getElement('player1Label');
+  const player2Label = getElement('player2Label');
+  const player3Label = getElement('player3Label');
+
+  // Configure visibility based on player count
+  switch (playerCount) {
+    case 1:
+      addClass(type2Element, 'hidden');
+      addClass(type3Element, 'hidden');
+      addClass(divider1Element, 'hidden');
+      addClass(divider2Element, 'hidden');
+      removeClass(player1Label, 'hidden');
+      addClass(player2Label, 'hidden');
+      addClass(player3Label, 'hidden');
+      break;
+
+    case 2:
+      removeClass(type2Element, 'hidden');
+      addClass(type3Element, 'hidden');
+      removeClass(divider1Element, 'hidden');
+      addClass(divider2Element, 'hidden');
+      removeClass(player1Label, 'hidden');
+      removeClass(player2Label, 'hidden');
+      addClass(player3Label, 'hidden');
+      break;
+
+    case 3:
+      removeClass(type2Element, 'hidden');
+      removeClass(type3Element, 'hidden');
+      removeClass(divider1Element, 'hidden');
+      removeClass(divider2Element, 'hidden');
+      removeClass(player1Label, 'hidden');
+      removeClass(player2Label, 'hidden');
+      removeClass(player3Label, 'hidden');
+      break;
+  }
+
+  // Close options submenu when player mode changes
+  closeOptionsSubmenu();
+
+  // Reset result display
+  resetDisplay();
+}
+
+// Close the options submenu
+function closeOptionsSubmenu() {
+  const submenu = getElement('submenu');
+  const submenuToggle = getElement('submenuToggle');
+
+  if (submenu?.classList.contains('open')) {
+    removeClass(submenu, 'open');
+
+    if (submenuToggle) {
+      removeClass(submenuToggle, 'bg-blue-600');
+      addClass(submenuToggle, 'bg-gray-700');
+      submenuToggle.setAttribute('aria-expanded', 'false');
+      submenuToggle.textContent = 'Options';
+    }
+  }
+}
+
+// Setup options submenu toggle
+function setupOptionsSubmenu() {
+  const submenuToggle = getElement('submenuToggle');
+  const submenu = getElement('submenu');
+
+  if (!submenuToggle || !submenu) return;
+
+  submenuToggle.addEventListener('click', () => {
+    const isOpen = submenu.classList.toggle('open');
+    submenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    if (isOpen) {
+      removeClass(submenuToggle, 'bg-gray-700');
+      addClass(submenuToggle, 'bg-blue-600');
     } else {
-      tier = randomTier();
+      removeClass(submenuToggle, 'bg-blue-600');
+      addClass(submenuToggle, 'bg-gray-700');
     }
-  } else {
-    tier = randomTier();
-  }
-  // expose the chosen tier temporarily on the nation object so suggestCategory
-  // can consult per-tier mappings defined in the nation (categoryByTier)
-  // We'll compute nations selected for each player depending on Axis/Allies option.
-  // nationsSelected[0] is the already chosen `nation` for player 1.
-  const nationsSelected = [nation];
-  if (useSameTeam && players > 1) {
-    const team = nation.team || 'allies';
-    const pool = nations.filter(n => (n.team || 'allies') === team);
-    for (let i = 1; i < players; i++) nationsSelected.push(pick(pool));
-  } else {
-    // independent nations per player (random for each), allow repeats
-    for (let i = 1; i < players; i++) nationsSelected.push(nations[randomInt(nations.length)]);
+  });
+}
+
+// Setup carrier toggle button
+function setupCarrierToggle() {
+  const allowCarrierButton = getElement('allowCarrier');
+  if (!allowCarrierButton) return;
+
+  allowCarrierButton.addEventListener('click', () => {
+    const isCurrentlyEnabled = allowCarrierButton.classList.contains('bg-blue-600');
+
+    if (isCurrentlyEnabled) {
+      setButtonState(allowCarrierButton, false);
+      allowCarrierButton.textContent = 'Aircraft-Carrier disabled';
+    } else {
+      setButtonState(allowCarrierButton, true);
+      allowCarrierButton.textContent = 'Aircraft-Carrier enabled';
+    }
+
+    resetDisplay();
+  });
+}
+
+// Setup category lock toggle button
+function setupCategoryLockToggle() {
+  const lockCategoryButton = getElement('lockCategoryToggle');
+  if (!lockCategoryButton) return;
+
+  lockCategoryButton.addEventListener('click', () => {
+    const isCurrentlyEnabled = lockCategoryButton.classList.contains('bg-blue-600');
+    const allowCarrierButton = getElement('allowCarrier');
+
+    if (isCurrentlyEnabled) {
+      // Turn off category lock
+      setButtonState(lockCategoryButton, false);
+
+      // Re-enable carrier button
+      if (allowCarrierButton) {
+        allowCarrierButton.disabled = false;
+      }
+    } else {
+      // Turn on category lock
+      setButtonState(lockCategoryButton, true);
+
+      // Disable carrier button (to avoid multi-carrier issues)
+      if (allowCarrierButton) {
+        setButtonState(allowCarrierButton, false);
+        allowCarrierButton.textContent = 'Aircraft-Carrier disabled';
+        allowCarrierButton.disabled = true;
+      }
+    }
+
+    resetDisplay();
+  });
+}
+
+// Setup axis/allies team toggle button
+function setupAxisAlliesToggle() {
+  const axisAlliesButton = getElement('axisAlliesToggle');
+  if (!axisAlliesButton) return;
+
+  // Set initial state to enabled
+  setButtonState(axisAlliesButton, true);
+
+  axisAlliesButton.addEventListener('click', () => {
+    const isCurrentlyEnabled = axisAlliesButton.classList.contains('bg-blue-600');
+    setButtonState(axisAlliesButton, !isCurrentlyEnabled);
+    resetDisplay();
+  });
+}
+
+// Update tier selector bounds to prevent invalid min/max combinations
+function updateTierSelectorBounds() {
+  const minTierSelect = getElement('minTier');
+  const maxTierSelect = getElement('maxTier');
+
+  if (!minTierSelect || !maxTierSelect) return;
+
+  const minValue = minTierSelect.value || 'Ⅰ';
+  const maxValue = maxTierSelect.value || '⭐';
+  const minIndex = TIERS.indexOf(minValue);
+  const maxIndex = TIERS.indexOf(maxValue);
+
+  // Disable min options greater than current max
+  Array.from(minTierSelect.options).forEach(option => {
+    const optionIndex = TIERS.indexOf(option.value);
+    option.disabled = optionIndex > maxIndex;
+  });
+
+  // Disable max options less than current min
+  Array.from(maxTierSelect.options).forEach(option => {
+    const optionIndex = TIERS.indexOf(option.value);
+    option.disabled = optionIndex < minIndex;
+  });
+
+  // Clamp invalid selections
+  if (TIERS.indexOf(minTierSelect.value) > maxIndex) {
+    minTierSelect.value = TIERS[maxIndex];
+    const minLabel = minTierSelect.parentElement.querySelector('.tier-value');
+    if (minLabel) minLabel.textContent = minTierSelect.value;
   }
 
-  // compute categories per selected nation.
-  // If category-lock is enabled, compute a single category for player1 and reuse it.
-  const lockCategory = $('lockCategoryToggle')?.classList.contains('bg-blue-600');
-  const effectiveAllowCarrier = allowCarrier && !lockCategory; // disallow carriers when categories are locked
-  const categoriesPerPlayer = [];
-  if (lockCategory) {
-    const n = nationsSelected[0];
-    n._selectedTier = tier;
-    const cat = suggestCategory(n, effectiveAllowCarrier, 1);
-    for (let i = 0; i < nationsSelected.length; i++) categoriesPerPlayer.push(cat);
-    // cleanup
-    delete n._selectedTier;
-  } else {
-    for (const n of nationsSelected) {
-      n._selectedTier = tier;
-      categoriesPerPlayer.push(suggestCategory(n, effectiveAllowCarrier, 1));
-    }
-    // cleanup temporary field
-    for (const n of nationsSelected) delete n._selectedTier;
-  }
-
-  // apply result using player1 as primary nation and pass categories array
-  const categoryToShow = players > 1 ? categoriesPerPlayer : categoriesPerPlayer[0];
-  applyResult({ nation: nationsSelected[0], tier, category: categoryToShow, players });
-
-  // set each player's nation name and flag
-  for (let i = 0; i < nationsSelected.length; i++) {
-    const slot = i + 1;
-    const nameEl = $('nationName' + slot);
-    const flagEl = $('flagImg' + slot);
-    const n = nationsSelected[i];
-    if (nameEl) nameEl.textContent = n.name || n.id;
-    if (flagEl) {
-      if (n.flag) { flagEl.src = n.flag; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
-      else { flagEl.src = 'assets/flags/placeholder.svg'; flagEl.classList.remove('hidden'); flagEl.removeAttribute('hidden'); }
-    }
+  if (TIERS.indexOf(maxTierSelect.value) < minIndex) {
+    maxTierSelect.value = TIERS[minIndex];
+    const maxLabel = maxTierSelect.parentElement.querySelector('.tier-value');
+    if (maxLabel) maxLabel.textContent = maxTierSelect.value;
   }
 }
 
-function setup() {
-  $('randomBtn').addEventListener('click', onRandom);
-  // reloadData removed (data embedded)
-  function setPlayersMode(players) {
-    const one = $('onePlayer');
-    const two = $('twoPlayer');
-    const three = $('threePlayer');
-    const type2 = $('type2');
-    const divider = $('typeDivider');
+// Setup min/max tier selectors
+function setupTierSelectors() {
+  const minTierSelect = getElement('minTier');
+  const maxTierSelect = getElement('maxTier');
 
-    // normalize classes: remove known selection/unselected color classes
-    one?.classList.remove('bg-blue-600', 'bg-blue-700', 'bg-gray-600', 'bg-gray-700');
-    two?.classList.remove('bg-blue-600', 'bg-blue-700', 'bg-gray-600', 'bg-gray-700');
-    three?.classList.remove('bg-blue-600', 'bg-blue-700', 'bg-gray-600', 'bg-gray-700');
+  if (!minTierSelect || !maxTierSelect) return;
 
-    // apply a consistent class scheme: selected => bg-blue-600, unselected => bg-gray-700
-    const setBtn = (el, sel) => {
-      if (!el) return;
-      if (sel) el.classList.add('bg-blue-600');
-      else el.classList.add('bg-gray-700');
-    };
+  // Set default values
+  if (!minTierSelect.value) minTierSelect.value = 'Ⅳ';
+  if (!maxTierSelect.value) maxTierSelect.value = '⭐';
 
-    setBtn(one, players === 1);
-    setBtn(two, players === 2);
-    setBtn(three, players === 3);
+  // Initialize visible labels
+  const minLabel = minTierSelect.parentElement.querySelector('.tier-value');
+  const maxLabel = maxTierSelect.parentElement.querySelector('.tier-value');
 
-    // show/hide columns and labels according to players
-    if (players === 1) {
-      type2?.classList.add('hidden');
-      $('type3')?.classList.add('hidden');
-      // show Player I label even in single-player mode
-      $('player1Label')?.classList.remove('hidden');
-      $('player2Label')?.classList.add('hidden');
-      $('player3Label')?.classList.add('hidden');
-      divider?.classList.add('hidden');
-      const divider2 = $('typeDivider2'); if (divider2) divider2?.classList.add('hidden');
-    } else if (players === 2) {
-      type2?.classList.remove('hidden');
-      $('type3')?.classList.add('hidden');
-      $('player1Label')?.classList.remove('hidden');
-      $('player2Label')?.classList.remove('hidden');
-      $('player3Label')?.classList.add('hidden');
-      divider?.classList.remove('hidden');
-      const divider2 = $('typeDivider2'); if (divider2) divider2?.classList.add('hidden');
-    } else { // 3
-      type2?.classList.remove('hidden');
-      $('type3')?.classList.remove('hidden');
-      $('player1Label')?.classList.remove('hidden');
-      $('player2Label')?.classList.remove('hidden');
-      $('player3Label')?.classList.remove('hidden');
-      divider?.classList.remove('hidden');
-      const divider2 = $('typeDivider2'); if (divider2) divider2?.classList.remove('hidden');
-    }
+  if (minLabel) minLabel.textContent = minTierSelect.value;
+  if (maxLabel) maxLabel.textContent = maxTierSelect.value;
 
-    // set dataset / aria state so selection detection is robust (don't rely only on Tailwind classes)
-    [one, two, three].forEach((el, i) => {
-      if (!el) return;
-      if (players === i + 1) { el.dataset.selected = '1'; el.setAttribute('aria-pressed', 'true'); }
-      else { delete el.dataset.selected; el.setAttribute('aria-pressed', 'false'); }
-    });
+  // Handle min tier changes
+  minTierSelect.addEventListener('change', (event) => {
+    updateTierSelectorBounds();
+    const label = event.target.parentElement.querySelector('.tier-value');
+    if (label) label.textContent = event.target.value;
+    resetDisplay();
+  });
 
-    // close options submenu when player mode changes
-    try {
-      const submenu = $('submenu');
-      const submenuToggle = $('submenuToggle');
-      if (submenu && submenu.classList.contains('open')) {
-        submenu.classList.remove('open');
-        if (submenuToggle) {
-          submenuToggle.classList.remove('bg-blue-600');
-          submenuToggle.classList.add('bg-gray-700');
-          submenuToggle.setAttribute('aria-expanded', 'false');
-          submenuToggle.textContent = 'Options';
-        }
-      }
-    } catch (e) {/* ignore */ }
+  // Handle max tier changes
+  maxTierSelect.addEventListener('change', (event) => {
+    updateTierSelectorBounds();
+    const label = event.target.parentElement.querySelector('.tier-value');
+    if (label) label.textContent = event.target.value;
+    resetDisplay();
+  });
 
-    // reset result whenever mode changes
-    resetResult();
-  }
+  // Apply initial bounds
+  updateTierSelectorBounds();
+}
 
-  $('onePlayer').addEventListener('click', () => setPlayersMode(1));
-  $('twoPlayer').addEventListener('click', () => setPlayersMode(2));
-  $('threePlayer').addEventListener('click', () => setPlayersMode(3));
+// Main setup function - initialize all event handlers and UI state
+function initializeApp() {
+  // Wire up player mode buttons
+  getElement('onePlayer')?.addEventListener('click', () => setPlayerMode(1));
+  getElement('twoPlayer')?.addEventListener('click', () => setPlayerMode(2));
+  getElement('threePlayer')?.addEventListener('click', () => setPlayerMode(3));
 
-  // carrier toggle behaviour
-  // submenu toggle + carrier toggle behaviour
-  const submenuToggle = $('submenuToggle');
-  const submenu = $('submenu');
-  if (submenuToggle && submenu) {
-    submenuToggle.addEventListener('click', () => {
-      const open = submenu.classList.toggle('open');
-      submenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      // change button color when open
-      if (open) { submenuToggle.classList.remove('bg-gray-700'); submenuToggle.classList.add('bg-blue-600'); }
-      else { submenuToggle.classList.remove('bg-blue-600'); submenuToggle.classList.add('bg-gray-700'); }
-    });
-  }
+  // Wire up randomize button
+  getElement('randomBtn')?.addEventListener('click', handleRandomize);
 
-  const allowEl = $('allowCarrier');
-  if (allowEl) {
-    allowEl.addEventListener('click', () => {
-      const el = allowEl;
-      if (el?.classList.contains('bg-blue-600')) {
-        el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700'); el.textContent = 'Aircraft-Carrier disabled';
-        el.setAttribute('aria-pressed', 'false');
-      } else {
-        el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600'); el.textContent = 'Aircraft-Carrier enabled';
-        el.setAttribute('aria-pressed', 'true');
-      }
-      // resetting result when carrier preference changes
-      resetResult();
-    });
-  }
+  // Setup all toggle buttons
+  setupOptionsSubmenu();
+  setupCarrierToggle();
+  setupCategoryLockToggle();
+  setupAxisAlliesToggle();
+  setupTierSelectors();
 
-  // lock category toggle: when enabled, all players receive same ship category
-  const lockCategoryEl = $('lockCategoryToggle');
-  function updateLockCategoryState() {
-    // disabled when single-player mode
-    const oneSelected = $('onePlayer')?.dataset && $('onePlayer').dataset.selected === '1';
-    if (lockCategoryEl) {
-      if (oneSelected) {
-        lockCategoryEl.classList.remove('bg-blue-600');
-        lockCategoryEl.classList.add('bg-gray-700');
-        lockCategoryEl.setAttribute('aria-pressed', 'false');
-        lockCategoryEl.disabled = true;
-      } else {
-        lockCategoryEl.disabled = false;
-      }
-    }
-  }
-  if (lockCategoryEl) {
-    lockCategoryEl.addEventListener('click', () => {
-      if (lockCategoryEl.classList.contains('bg-blue-600')) {
-        // turn off
-        lockCategoryEl.classList.remove('bg-blue-600'); lockCategoryEl.classList.add('bg-gray-700'); lockCategoryEl.setAttribute('aria-pressed', 'false');
-        // restore carrier toggle to enabled state
-        const carrierBtn = $('allowCarrier'); if (carrierBtn) carrierBtn.disabled = false;
-      } else {
-        // turn on
-        lockCategoryEl.classList.remove('bg-gray-700'); lockCategoryEl.classList.add('bg-blue-600'); lockCategoryEl.setAttribute('aria-pressed', 'true');
-
-        // when lock category is on we must disable aircraft carrier selection to avoid multi-carrier rules
-        const carrierBtn = $('allowCarrier'); if (carrierBtn) {
-          carrierBtn.classList.remove('bg-blue-600'); carrierBtn.classList.add('bg-gray-700'); carrierBtn.setAttribute('aria-pressed', 'false'); carrierBtn.disabled = true; carrierBtn.textContent = 'Aircraft-Carrier disabled';
-        }
-      }
-      resetResult();
-    });
-  }
-
-  // ensure sensible defaults for min/max tier selectors when options panel opens
-  const minTierSelect = $('minTier');
-  const maxTierSelect = $('maxTier');
-  if (minTierSelect && maxTierSelect) {
-    // use TIERS constant for ordering and comparisons
-
-    // set defaults if not already set
-    if (!minTierSelect.value) minTierSelect.value = 'Ⅳ';
-    if (!maxTierSelect.value) maxTierSelect.value = '⭐';
-
-    // helper to ensure options outside the allowed range are disabled
-    function updateTierBounds() {
-      const minVal = minTierSelect.value || 'Ⅰ';
-      const maxVal = maxTierSelect.value || '⭐';
-      const minIdx = TIERS.indexOf(minVal);
-      const maxIdx = TIERS.indexOf(maxVal);
-      // disable min options that are greater than current max
-      Array.from(minTierSelect.options).forEach(opt => {
-        const i = TIERS.indexOf(opt.value);
-        opt.disabled = i > maxIdx;
-      });
-      // disable max options that are less than current min
-      Array.from(maxTierSelect.options).forEach(opt => {
-        const i = TIERS.indexOf(opt.value);
-        opt.disabled = i < minIdx;
-      });
-      // if selections are invalid, clamp them
-      if (TIERS.indexOf(minTierSelect.value) > maxIdx) {
-        minTierSelect.value = TIERS[maxIdx];
-        const el = minTierSelect.parentElement.querySelector('.tier-value'); if (el) el.textContent = minTierSelect.value;
-      }
-      if (TIERS.indexOf(maxTierSelect.value) < minIdx) {
-        maxTierSelect.value = TIERS[minIdx];
-        const el = maxTierSelect.parentElement.querySelector('.tier-value'); if (el) el.textContent = maxTierSelect.value;
-      }
-    }
-
-    // initialize visible labels
-    const minLabelEl = minTierSelect.parentElement.querySelector('.tier-value'); if (minLabelEl) minLabelEl.textContent = minTierSelect.value;
-    const maxLabelEl = maxTierSelect.parentElement.querySelector('.tier-value'); if (maxLabelEl) maxLabelEl.textContent = maxTierSelect.value;
-
-    // wire changes: update bounds first (may clamp), then refresh visible label and reset result
-    minTierSelect.addEventListener('change', (e) => {
-      updateTierBounds();
-      const v = e.target.value;
-      const el = e.target.parentElement.querySelector('.tier-value'); if (el) el.textContent = v;
-      resetResult();
-    });
-    maxTierSelect.addEventListener('change', (e) => {
-      updateTierBounds();
-      const v = e.target.value;
-      const el = e.target.parentElement.querySelector('.tier-value'); if (el) el.textContent = v;
-      resetResult();
-    });
-
-    // apply initial bounds disabling
-    updateTierBounds();
-  }
-
-  // axis/allies toggle: active by default
-  const axisEl = $('axisAlliesToggle');
-  if (axisEl) {
-    // ensure default active appearance
-    axisEl.classList.remove('bg-gray-700');
-    axisEl.classList.add('bg-blue-600');
-    axisEl.setAttribute('aria-pressed', 'true');
-
-    axisEl.addEventListener('click', () => {
-      const el = axisEl;
-      if (el?.classList.contains('bg-blue-600')) {
-        el?.classList.remove('bg-blue-600'); el?.classList.add('bg-gray-700');
-        el.setAttribute('aria-pressed', 'false');
-      } else {
-        el?.classList.remove('bg-gray-700'); el?.classList.add('bg-blue-600');
-        el.setAttribute('aria-pressed', 'true');
-      }
-      // reset result when option changes
-      resetResult();
-    });
-  }
-
-  // initial state: set players mode to 2 (keeps classes consistent)
-  setPlayersMode(2);
-  updateLockCategoryState();
-  // set carrier button default to disabled state
-  const carrier = $('allowCarrier'); if (carrier) { carrier?.classList.remove('bg-blue-600'); carrier?.classList.add('bg-gray-700'); carrier.textContent = 'Aircraft-Carrier disabled'; }
-  // setup flag image fallback handlers
+  // Setup image error handlers
   setupFlagImageHandlers();
-  // setup category images handlers
   setupCategoryImageHandlers();
+
+  // Set initial UI state
+  setPlayerMode(2); // Default to 2-player mode
+
+  // Set carrier button to disabled by default
+  const carrierButton = getElement('allowCarrier');
+  if (carrierButton) {
+    setButtonState(carrierButton, false);
+    carrierButton.textContent = 'Aircraft-Carrier disabled';
+  }
 }
 
-window.addEventListener('load', setup);
+// Start the app when page loads
+window.addEventListener('load', initializeApp);
