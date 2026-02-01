@@ -299,26 +299,32 @@ function selectRandomTier() {
   return pickRandom(TIERS);
 }
 
-// Add a CSS class to an element
-function addClass(element, className) {
-  element?.classList.add(className);
+// Add a CSS class to element(s)
+function addClass(elements, className) {
+  const elementArray = Array.isArray(elements) ? elements : [elements];
+  elementArray.forEach(element => element?.classList.add(className));
 }
 
-// Remove a CSS class from an element
-function removeClass(element, className) {
-  element?.classList.remove(className);
+// Remove a CSS class from element(s)
+function removeClass(elements, className) {
+  const elementArray = Array.isArray(elements) ? elements : [elements];
+  elementArray.forEach(element => element?.classList.remove(className));
 }
 
-// Show an element by removing the 'hidden' class
-function showElement(element) {
-  if (!element) return;
-  removeClass(element, 'hidden');
+// Show element(s) by removing the 'hidden' class
+function showElement(elements) {
+  const elementArray = Array.isArray(elements) ? elements : [elements];
+  elementArray.forEach(element => {
+    if (element) removeClass(element, 'hidden');
+  });
 }
 
-// Hide an element by adding the 'hidden' class
-function hideElement(element) {
-  if (!element) return;
-  addClass(element, 'hidden');
+// Hide element(s) by adding the 'hidden' class
+function hideElement(elements) {
+  const elementArray = Array.isArray(elements) ? elements : [elements];
+  elementArray.forEach(element => {
+    if (element) addClass(element, 'hidden');
+  });
 }
 
 // Toggle button state between active (blue) and inactive (gray)
@@ -770,15 +776,13 @@ function setPlayerMode(playerCount) {
   const threePlayerButton = getElement('threePlayer');
 
   // Remove all color classes first
-  [onePlayerButton, twoPlayerButton, threePlayerButton].forEach(button => {
-    removeClass(button, 'bg-blue-600');
-    removeClass(button, 'bg-blue-700');
-    removeClass(button, 'bg-gray-600');
-    removeClass(button, 'bg-gray-700');
-  });
+  const buttons = [onePlayerButton, twoPlayerButton, threePlayerButton];
+  removeClass(buttons, 'bg-blue-600');
+  removeClass(buttons, 'bg-blue-700');
+  removeClass(buttons, 'bg-gray-600');
+  removeClass(buttons, 'bg-gray-700');
 
   // Apply correct state to each button
-  const buttons = [onePlayerButton, twoPlayerButton, threePlayerButton];
   buttons.forEach((button, index) => {
     if (!button) return;
 
@@ -801,33 +805,17 @@ function setPlayerMode(playerCount) {
   // Configure visibility based on player count
   switch (playerCount) {
     case 1:
-      hideElement(type2Element);
-      hideElement(type3Element);
-      hideElement(divider1Element);
-      hideElement(divider2Element);
+      hideElement([type2Element, type3Element, divider1Element, divider2Element, player2Label, player3Label]);
       showElement(player1Label);
-      hideElement(player2Label);
-      hideElement(player3Label);
       break;
 
     case 2:
-      showElement(type2Element);
-      hideElement(type3Element);
-      showElement(divider1Element);
-      hideElement(divider2Element);
-      showElement(player1Label);
-      showElement(player2Label);
-      hideElement(player3Label);
+      showElement([type2Element, divider1Element, player1Label, player2Label]);
+      hideElement([type3Element, divider2Element, player3Label]);
       break;
 
     case 3:
-      showElement(type2Element);
-      showElement(type3Element);
-      showElement(divider1Element);
-      showElement(divider2Element);
-      showElement(player1Label);
-      showElement(player2Label);
-      showElement(player3Label);
+      showElement([type2Element, type3Element, divider1Element, divider2Element, player1Label, player2Label, player3Label]);
       break;
   }
 
