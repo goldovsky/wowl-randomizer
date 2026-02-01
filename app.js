@@ -264,6 +264,9 @@ const CATEGORIES = {
   CARRIER: 'Aircraft Carrier'
 };
 
+// Maximum number of players supported
+const MAX_PLAYERS = 3;
+
 // ============================================================
 //                      UTILITY FUNCTIONS
 //  Small helper functions used across the app
@@ -272,6 +275,13 @@ const CATEGORIES = {
 // Quick DOM element selector
 function getElement(id) {
   return document.getElementById(id);
+}
+
+// Generate consistent element ID for player-specific elements
+// Player 1's elements have no suffix (e.g., 'category', 'categoryImg')
+// Players 2+ have numbered suffix (e.g., 'category2', 'categoryImg2')
+function getPlayerElementId(baseName, playerNumber) {
+  return playerNumber === 1 ? baseName : `${baseName}${playerNumber}`;
 }
 
 // Generate random integer from 0 to max (exclusive)
@@ -297,6 +307,18 @@ function addClass(element, className) {
 // Remove a CSS class from an element
 function removeClass(element, className) {
   element?.classList.remove(className);
+}
+
+// Show an element by removing the 'hidden' class
+function showElement(element) {
+  if (!element) return;
+  removeClass(element, 'hidden');
+}
+
+// Hide an element by adding the 'hidden' class
+function hideElement(element) {
+  if (!element) return;
+  addClass(element, 'hidden');
 }
 
 // Toggle button state between active (blue) and inactive (gray)
@@ -405,10 +427,10 @@ function formatCategoryLabel(category, playerCount) {
 // Set the category image for a player slot
 function setCategoryImage(imageElement, category) {
   if (!imageElement) return;
-
+  
   const imagePath = `assets/categories/${encodeURIComponent(category)}.png`;
   imageElement.src = imagePath;
-  removeClass(imageElement, 'hidden');
+  showElement(imageElement);
   imageElement.dataset.attemptedFallback = '';
 }
 
@@ -416,56 +438,51 @@ function setCategoryImage(imageElement, category) {
 function updatePlayerDisplay(playerNumber, nation, category, playerCount) {
   const nationNameElement = getElement(`nationName${playerNumber}`);
   const flagImageElement = getElement(`flagImg${playerNumber}`);
-  const categoryElement = getElement(`category${playerNumber === 1 ? '' : playerNumber}`);
-  const categoryImageElement = getElement(`categoryImg${playerNumber === 1 ? '' : playerNumber}`);
+  const categoryElement = getElement(getPlayerElementId('category', playerNumber));
+  const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
   const typeElement = getElement(`type${playerNumber}`);
-
+  
   // Update nation name
   if (nationNameElement) {
     nationNameElement.textContent = nation.name || nation.id;
   }
-
-  // Update flag
-  if (flagImageElement) {
-    flagImageElement.src = nation.flag || 'assets/flags/placeholder.svg';
-    removeClass(flagImageElement, 'hidden');
-    flagImageElement.removeAttribute('hidden');
+  
+  // Update flag (only show if nation has a flag)
+  if (flagImageElement && nation.flag) {
+    flagImageElement.src = nation.flag;
+    showElement(flagImageElement);
   }
-
+  
   // Update category text and image
   if (categoryElement) {
     categoryElement.textContent = formatCategoryLabel(category, playerCount);
   }
-
+  
   if (categoryImageElement && category) {
     setCategoryImage(categoryImageElement, category);
   }
-
+  
   // Show the type column for this player
-  if (typeElement) {
-    removeClass(typeElement, 'hidden');
-  }
+  showElement(typeElement);
 }
 
 // Hide a player's display slot
 function hidePlayerDisplay(playerNumber) {
-  const categoryElement = getElement(`category${playerNumber === 1 ? '' : playerNumber}`);
-  const categoryImageElement = getElement(`categoryImg${playerNumber === 1 ? '' : playerNumber}`);
+  const categoryElement = getElement(getPlayerElementId('category', playerNumber));
+  const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
   const typeElement = getElement(`type${playerNumber}`);
-
+  
   if (categoryElement) {
     categoryElement.textContent = '';
-    addClass(categoryElement, 'hidden');
+    hideElement(categoryElement);
   }
-
+  
   if (categoryImageElement) {
     categoryImageElement.src = '';
-    addClass(categoryImageElement, 'hidden');
+    hideElement(categoryImageElement);
   }
-
-  if (typeElement) {
-    addClass(typeElement, 'hidden');
-  }
+  
+  hideElement(typeElement);
 }
 
 // Display the randomized result on screen
@@ -486,8 +503,35 @@ function displayResult(nations, tier, categories, playerCount) {
   }
 
   // Hide unused player slots
-  for (let i = playerCount; i < 3; i++) {
+  for (let i = playerCount; i < MAX_PLAYERS; i++) {
     hidePlayerDisplay(i + 1);
+  }
+}
+
+// Reset a single player's display to empty state
+function resetPlayerDisplay(playerNumber) {
+  const nationNameElement = getElement(`nationName${playerNumber}`);
+  const flagImageElement = getElement(`flagImg${playerNumber}`);
+  const categoryElement = getElement(getPlayerElementId('category', playerNumber));
+  const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
+  
+  if (nationNameElement) {
+    nationNameElement.textContent = '—';
+  }
+  
+  if (flagImageElement) {
+    flagImageElement.src = '';
+    hideElement(flagImageElement);
+  }
+  
+  if (categoryElement) {
+    categoryElement.textContent = '';
+    hideElement(categoryElement);
+  }
+  
+  if (categoryImageElement) {
+    categoryImageElement.src = '';
+    hideElement(categoryImageElement);
   }
 }
 
@@ -495,31 +539,10 @@ function displayResult(nations, tier, categories, playerCount) {
 function resetDisplay() {
   const tierElement = getElement('tier');
   if (tierElement) tierElement.textContent = '—';
-
+  
   // Reset all player displays
-  for (let i = 1; i <= 3; i++) {
-    const nationNameElement = getElement(`nationName${i}`);
-    const flagImageElement = getElement(`flagImg${i}`);
-    const categoryElement = getElement(`category${i === 1 ? '' : i}`);
-    const categoryImageElement = getElement(`categoryImg${i === 1 ? '' : i}`);
-
-    if (nationNameElement) nationNameElement.textContent = '—';
-
-    if (flagImageElement) {
-      flagImageElement.src = 'assets/flags/placeholder.svg';
-      addClass(flagImageElement, 'hidden');
-      flagImageElement.setAttribute('hidden', '');
-    }
-
-    if (categoryElement) {
-      categoryElement.textContent = '';
-      addClass(categoryElement, 'hidden');
-    }
-
-    if (categoryImageElement) {
-      categoryImageElement.src = '';
-      addClass(categoryImageElement, 'hidden');
-    }
+  for (let i = 1; i <= MAX_PLAYERS; i++) {
+    resetPlayerDisplay(i);
   }
 }
 
@@ -558,17 +581,15 @@ function setupFlagImageHandlers() {
   flagImages.forEach(image => {
     image.onerror = function () {
       if (tryAlternateImageFormat(image)) {
-        console.warn('Flag image missing, trying alternate format:', image.src);
         return;
       }
-
-      console.warn('Flag image failed to load, using placeholder:', image.src);
-      image.src = 'assets/flags/placeholder.svg';
+      
+      hideElement(image);
     };
-
+    
     image.onload = function () {
       addClass(image, 'object-cover');
-      removeClass(image, 'hidden');
+      showElement(image);
     };
   });
 }
@@ -584,13 +605,17 @@ function setupCategoryImageHandlers() {
   categoryImages.forEach(image => {
     image.onerror = function () {
       if (tryAlternateImageFormat(image)) {
-        console.warn('Category image missing, trying alternate format:', image.src);
         return;
       }
 
       // Hide image if all formats fail
-      addClass(image, 'hidden');
+      hideElement(image);
       image.src = '';
+    };
+    
+    image.onload = function() {
+      showElement(image);
+      addClass(image, 'object-contain');
     };
 
     image.onload = function () {
@@ -776,33 +801,33 @@ function setPlayerMode(playerCount) {
   // Configure visibility based on player count
   switch (playerCount) {
     case 1:
-      addClass(type2Element, 'hidden');
-      addClass(type3Element, 'hidden');
-      addClass(divider1Element, 'hidden');
-      addClass(divider2Element, 'hidden');
-      removeClass(player1Label, 'hidden');
-      addClass(player2Label, 'hidden');
-      addClass(player3Label, 'hidden');
+      hideElement(type2Element);
+      hideElement(type3Element);
+      hideElement(divider1Element);
+      hideElement(divider2Element);
+      showElement(player1Label);
+      hideElement(player2Label);
+      hideElement(player3Label);
       break;
-
+      
     case 2:
-      removeClass(type2Element, 'hidden');
-      addClass(type3Element, 'hidden');
-      removeClass(divider1Element, 'hidden');
-      addClass(divider2Element, 'hidden');
-      removeClass(player1Label, 'hidden');
-      removeClass(player2Label, 'hidden');
-      addClass(player3Label, 'hidden');
+      showElement(type2Element);
+      hideElement(type3Element);
+      showElement(divider1Element);
+      hideElement(divider2Element);
+      showElement(player1Label);
+      showElement(player2Label);
+      hideElement(player3Label);
       break;
-
+      
     case 3:
-      removeClass(type2Element, 'hidden');
-      removeClass(type3Element, 'hidden');
-      removeClass(divider1Element, 'hidden');
-      removeClass(divider2Element, 'hidden');
-      removeClass(player1Label, 'hidden');
-      removeClass(player2Label, 'hidden');
-      removeClass(player3Label, 'hidden');
+      showElement(type2Element);
+      showElement(type3Element);
+      showElement(divider1Element);
+      showElement(divider2Element);
+      showElement(player1Label);
+      showElement(player2Label);
+      showElement(player3Label);
       break;
   }
 
