@@ -427,7 +427,7 @@ function formatCategoryLabel(category, playerCount) {
 // Set the category image for a player slot
 function setCategoryImage(imageElement, category) {
   if (!imageElement) return;
-  
+
   const imagePath = `assets/categories/${encodeURIComponent(category)}.png`;
   imageElement.src = imagePath;
   showElement(imageElement);
@@ -441,27 +441,27 @@ function updatePlayerDisplay(playerNumber, nation, category, playerCount) {
   const categoryElement = getElement(getPlayerElementId('category', playerNumber));
   const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
   const typeElement = getElement(`type${playerNumber}`);
-  
+
   // Update nation name
   if (nationNameElement) {
     nationNameElement.textContent = nation.name || nation.id;
   }
-  
+
   // Update flag (only show if nation has a flag)
   if (flagImageElement && nation.flag) {
     flagImageElement.src = nation.flag;
     showElement(flagImageElement);
   }
-  
+
   // Update category text and image
   if (categoryElement) {
     categoryElement.textContent = formatCategoryLabel(category, playerCount);
   }
-  
+
   if (categoryImageElement && category) {
     setCategoryImage(categoryImageElement, category);
   }
-  
+
   // Show the type column for this player
   showElement(typeElement);
 }
@@ -471,17 +471,17 @@ function hidePlayerDisplay(playerNumber) {
   const categoryElement = getElement(getPlayerElementId('category', playerNumber));
   const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
   const typeElement = getElement(`type${playerNumber}`);
-  
+
   if (categoryElement) {
     categoryElement.textContent = '';
     hideElement(categoryElement);
   }
-  
+
   if (categoryImageElement) {
     categoryImageElement.src = '';
     hideElement(categoryImageElement);
   }
-  
+
   hideElement(typeElement);
 }
 
@@ -514,21 +514,21 @@ function resetPlayerDisplay(playerNumber) {
   const flagImageElement = getElement(`flagImg${playerNumber}`);
   const categoryElement = getElement(getPlayerElementId('category', playerNumber));
   const categoryImageElement = getElement(getPlayerElementId('categoryImg', playerNumber));
-  
+
   if (nationNameElement) {
     nationNameElement.textContent = '—';
   }
-  
+
   if (flagImageElement) {
     flagImageElement.src = '';
     hideElement(flagImageElement);
   }
-  
+
   if (categoryElement) {
     categoryElement.textContent = '';
     hideElement(categoryElement);
   }
-  
+
   if (categoryImageElement) {
     categoryImageElement.src = '';
     hideElement(categoryImageElement);
@@ -539,7 +539,7 @@ function resetPlayerDisplay(playerNumber) {
 function resetDisplay() {
   const tierElement = getElement('tier');
   if (tierElement) tierElement.textContent = '—';
-  
+
   // Reset all player displays
   for (let i = 1; i <= MAX_PLAYERS; i++) {
     resetPlayerDisplay(i);
@@ -583,10 +583,10 @@ function setupFlagImageHandlers() {
       if (tryAlternateImageFormat(image)) {
         return;
       }
-      
+
       hideElement(image);
     };
-    
+
     image.onload = function () {
       addClass(image, 'object-cover');
       showElement(image);
@@ -612,8 +612,8 @@ function setupCategoryImageHandlers() {
       hideElement(image);
       image.src = '';
     };
-    
-    image.onload = function() {
+
+    image.onload = function () {
       showElement(image);
       addClass(image, 'object-contain');
     };
@@ -809,7 +809,7 @@ function setPlayerMode(playerCount) {
       hideElement(player2Label);
       hideElement(player3Label);
       break;
-      
+
     case 2:
       showElement(type2Element);
       hideElement(type3Element);
@@ -819,7 +819,7 @@ function setPlayerMode(playerCount) {
       showElement(player2Label);
       hideElement(player3Label);
       break;
-      
+
     case 3:
       showElement(type2Element);
       showElement(type3Element);
