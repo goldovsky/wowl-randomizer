@@ -33,8 +33,8 @@ body{background:var(--bg);}
 
 .bg-gray-900\/40{ background-color: rgba(15,23,36,0.4) }
 
-/* make sure flag image covers area and doesn't stretch oddly */
-#flagImg{ object-fit:cover; height:3rem; width:4rem; }
+/* make sure flag images cover their area, have fixed size and rounded corners */
+img[id^="flagImg"] { object-fit: cover; height: 3rem; width: 4rem; border-radius: 0.5rem; }
 
 /* site logo sizing — larger on desktop, slightly smaller on mobile */
 #siteLogo{ height:8rem; width:auto; object-fit:contain; max-width:90% }
