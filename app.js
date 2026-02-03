@@ -8,7 +8,7 @@ const nations = [
   {
     id: "usa",
     name: "U.S.A.",
-    flag: "assets/flags/usa.png",
+    flag: "assets/flags/usa.svg",
     carriers: true,
     team: "allies",
     categoryByTier: {
@@ -27,7 +27,7 @@ const nations = [
   {
     id: "japan",
     name: "Japan",
-    flag: "assets/flags/japan.png",
+    flag: "assets/flags/japan.svg",
     carriers: true,
     team: "axis",
     categoryByTier: {
@@ -46,7 +46,7 @@ const nations = [
   {
     id: "ussr",
     name: "U.S.S.R.",
-    flag: "assets/flags/ussr.png",
+    flag: "assets/flags/ussr.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -65,7 +65,7 @@ const nations = [
   {
     id: "germany",
     name: "Germany",
-    flag: "assets/flags/germany.png",
+    flag: "assets/flags/germany.svg",
     carriers: false,
     team: "axis",
     categoryByTier: {
@@ -84,7 +84,7 @@ const nations = [
   {
     id: "uk",
     name: "U.K.",
-    flag: "assets/flags/uk.png",
+    flag: "assets/flags/uk.svg",
     carriers: true,
     team: "allies",
     categoryByTier: {
@@ -103,7 +103,7 @@ const nations = [
   {
     id: "france",
     name: "France",
-    flag: "assets/flags/france.png",
+    flag: "assets/flags/france.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -122,7 +122,7 @@ const nations = [
   {
     id: "italy",
     name: "Italy",
-    flag: "assets/flags/italy.png",
+    flag: "assets/flags/italy.svg",
     carriers: false,
     team: "axis",
     categoryByTier: {
@@ -141,7 +141,7 @@ const nations = [
   {
     id: "spain",
     name: "Spain",
-    flag: "assets/flags/spain.png",
+    flag: "assets/flags/spain.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -160,7 +160,7 @@ const nations = [
   {
     id: "netherlands",
     name: "Netherlands",
-    flag: "assets/flags/netherlands.png",
+    flag: "assets/flags/netherlands.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -179,7 +179,7 @@ const nations = [
   {
     id: "pan-america",
     name: "Pan-America",
-    flag: "assets/flags/pan-america.png",
+    flag: "assets/flags/pan-america.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -198,7 +198,7 @@ const nations = [
   {
     id: "commonwealth",
     name: "Commonwealth",
-    flag: "assets/flags/commonwealth.png",
+    flag: "assets/flags/commonwealth.svg",
     carriers: true,
     team: "allies",
     categoryByTier: {
@@ -217,7 +217,7 @@ const nations = [
   {
     id: "pan-asia",
     name: "Pan-Asia",
-    flag: "assets/flags/pan-asia.png",
+    flag: "assets/flags/pan-asia.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -236,7 +236,7 @@ const nations = [
   {
     id: "europe",
     name: "Europe",
-    flag: "assets/flags/europe.png",
+    flag: "assets/flags/europe.svg",
     carriers: false,
     team: "allies",
     categoryByTier: {
@@ -434,10 +434,9 @@ function formatCategoryLabel(category, playerCount) {
 function setCategoryImage(imageElement, category) {
   if (!imageElement) return;
 
-  const imagePath = `assets/categories/${encodeURIComponent(category)}.png`;
+  const imagePath = `assets/categories/${encodeURIComponent(category)}.svg`;
   imageElement.src = imagePath;
   showElement(imageElement);
-  imageElement.dataset.attemptedFallback = '';
 }
 
 // Update a single player's display (nation name, flag, category)
@@ -557,24 +556,6 @@ function resetDisplay() {
 //  Handle missing flag/category images with fallbacks
 // ============================================================
 
-// Try alternate image format (png <-> svg) on load error
-function tryAlternateImageFormat(imageElement) {
-  const alreadyTriedFallback = imageElement.dataset.attemptedFallback;
-  if (alreadyTriedFallback) return false;
-
-  imageElement.dataset.attemptedFallback = '1';
-  const currentSrc = imageElement.src || '';
-
-  if (currentSrc.endsWith('.png')) {
-    imageElement.src = currentSrc.replace(/\.png$/, '.svg');
-    return true;
-  } else if (currentSrc.endsWith('.svg')) {
-    imageElement.src = currentSrc.replace(/\.svg$/, '.png');
-    return true;
-  }
-
-  return false;
-}
 
 // Setup error handlers for flag images
 function setupFlagImageHandlers() {
@@ -586,11 +567,9 @@ function setupFlagImageHandlers() {
 
   flagImages.forEach(image => {
     image.onerror = function () {
-      if (tryAlternateImageFormat(image)) {
-        return;
-      }
-
+      // Hide and clear src if the flag fails to load
       hideElement(image);
+      image.src = '';
     };
 
     image.onload = function () {
@@ -610,11 +589,7 @@ function setupCategoryImageHandlers() {
 
   categoryImages.forEach(image => {
     image.onerror = function () {
-      if (tryAlternateImageFormat(image)) {
-        return;
-      }
-
-      // Hide image if all formats fail
+      // Hide and clear src if the category icon fails to load
       hideElement(image);
       image.src = '';
     };
